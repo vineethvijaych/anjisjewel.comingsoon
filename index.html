@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>anjisjewel — Coming Soon</title>
+  <meta name="description" content="AnjisJewel — heirloom-inspired jewellery. Coming soon." />
+  <meta name="theme-color" content="#0F2F28" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            evergreen: '#0F2F28',
+            rosegold: '#D9A38F',
+            alabaster: '#F6F4F1'
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background: #0F2F28; color: #F6F4F1; }
+    .fade-in { opacity: 0; transform: translateY(6px); animation: in .6s ease-out forwards; }
+    @keyframes in { to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center text-center px-6">
+  <main class="max-w-sm w-full space-y-6">
+    <div class="fade-in space-y-3">
+      <h1 class="font-serif text-5xl sm:text-6xl text-rosegold">anjisjewel</h1>
+      <p class="text-base text-alabaster/80">Heirloom-inspired jewellery redefined for the modern era.</p>
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm">
+        <span class="inline-block h-2 w-2 rounded-full bg-rosegold"></span>
+        <span>Coming Soon</span>
+      </div>
+
+      <!-- Countdown -->
+      <div class="mt-4 inline-flex items-center gap-4 rounded-xl px-4 py-2.5 text-sm bg-white/5 border border-white/10" aria-live="polite">
+        <span class="text-alabaster/70">Launching in</span>
+        <div id="countdown" class="flex gap-4 font-semibold tracking-tight">
+          <span><b id="d">20</b> <span class="text-alabaster/60 font-normal">d</span></span>
+          <span><b id="h">00</b> <span class="text-alabaster/60 font-normal">h</span></span>
+          <span><b id="m">00</b> <span class="text-alabaster/60 font-normal">m</span></span>
+          <span><b id="s">00</b> <span class="text-alabaster/60 font-normal">s</span></span>
+        </div>
+      </div>
+    </div>
+    <footer class="fade-in pt-10 text-xs text-alabaster/60">© <span id="year"></span> anjisjewel</footer>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // 20-day countdown from now (client local time)
+    const launchAt = new Date(Date.now() + 20*24*60*60*1000);
+    const el = { d: document.getElementById('d'), h: document.getElementById('h'), m: document.getElementById('m'), s: document.getElementById('s') };
+    function tick(){
+      const now = new Date();
+      let t = launchAt - now;
+      if (t < 0) t = 0;
+      const d = Math.floor(t/86400000);
+      const h = Math.floor((t%86400000)/3600000);
+      const m = Math.floor((t%3600000)/60000);
+      const s = Math.floor((t%60000)/1000);
+      el.d.textContent = String(d).padStart(2,'0');
+      el.h.textContent = String(h).padStart(2,'0');
+      el.m.textContent = String(m).padStart(2,'0');
+      el.s.textContent = String(s).padStart(2,'0');
+    }
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
