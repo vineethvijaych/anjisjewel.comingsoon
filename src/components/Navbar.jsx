@@ -3,8 +3,6 @@ import { useCart } from "../context/CartContext";
 import { supabase } from "../supabase";
 import { useEffect, useState } from "react";
 
-const ADMIN_EMAIL = "vineethcpz6881@gmail.com";
-
 export default function Navbar() {
   const { cartCount, user, addToast } = useCart();
   const navigate  = useNavigate();
@@ -42,9 +40,7 @@ export default function Navbar() {
             <a href="/#products">Collections</a>
             <a href="/#craft">Craft</a>
             {user && <Link to="/orders">My Orders</Link>}
-            {user?.email === ADMIN_EMAIL && (
-              <Link to="/admin/orders" style={{ color: "var(--gold)" }}>Admin</Link>
-            )}
+
           </nav>
 
           <div className="nav-right">
@@ -76,11 +72,7 @@ export default function Navbar() {
         <a href="/#products" onClick={handleNav}>Collections</a>
         <a href="/#craft"    onClick={handleNav}>Craft</a>
         {user && <Link to="/orders"       onClick={handleNav}>My Orders</Link>}
-        {user?.email === ADMIN_EMAIL && (
-          <Link to="/admin/orders" onClick={handleNav} style={{ color: "var(--gold)" }}>
-            Admin
-          </Link>
-        )}
+
         <div className="mobile-menu-divider" />
         {user ? (
           <button className="mobile-auth-btn" onClick={() => { handleLogout(); handleNav(); }}>

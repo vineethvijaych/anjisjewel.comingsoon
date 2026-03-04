@@ -715,6 +715,41 @@ img{display:block;max-width:100%}
 .pm-empty-icon{font-size:56px;color:var(--gold);opacity:0.2;margin-bottom:16px}
 .pm-empty-text{font-family:var(--font-display);font-size:26px;font-weight:300;color:var(--text-dark);margin-bottom:8px}
 .pm-empty-sub{font-size:12px;color:var(--text-muted);letter-spacing:0.06em}
+/* ─── FLOATING CART BAR ─── */
+.cart-bar{
+  position:fixed;bottom:0;left:0;right:0;
+  z-index:1500;
+  background:var(--forest);
+  border-top:1px solid rgba(201,144,122,0.2);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 48px;
+  box-shadow:0 -8px 40px rgba(0,0,0,0.25);
+  animation:cartBarIn 0.4s var(--ease-e);
+  gap:16px;
+}
+@keyframes cartBarIn{
+  from{transform:translateY(100%);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+.cart-bar-left{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.cart-bar-icon{font-size:16px;color:var(--gold);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.9)}}
+.cart-bar-count{font-size:13px;font-weight:400;color:rgba(255,255,255,0.85);letter-spacing:0.04em}
+.cart-bar-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.cart-bar-btn{
+  padding:10px 24px;font-family:var(--font-body);
+  font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;
+  cursor:pointer;transition:all 0.25s;white-space:nowrap;border:none;
+}
+.cart-bar-btn.ghost{
+  background:transparent;color:rgba(255,255,255,0.55);
+  border:1px solid rgba(255,255,255,0.15);
+}
+.cart-bar-btn.ghost:hover{color:#fff;border-color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.05)}
+.cart-bar-btn.primary{background:var(--gold);color:#fff;border:1px solid var(--gold)}
+.cart-bar-btn.primary:hover{background:var(--gold-lt);border-color:var(--gold-lt);box-shadow:0 4px 20px rgba(201,144,122,0.4);transform:translateY(-1px)}
+body:has(.cart-bar) .footer{padding-bottom:80px}
+
 /* ═══════════════════════════════════════
    RESPONSIVE — ALL BREAKPOINTS
 ═══════════════════════════════════════ */
