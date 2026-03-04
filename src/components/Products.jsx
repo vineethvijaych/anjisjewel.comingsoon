@@ -89,12 +89,13 @@ function ProductItem({ product, onAddToCart, addingId }) {
             </div>
             <span className="pm-qty-stock">{product.stock} in stock</span>
             <button
-              className="pm-add-btn"
-              disabled={adding}
-              onClick={() => onAddToCart(product, qty)}
-            >
-              <span>{adding ? "Adding…" : "Add to Cart"}</span>
-            </button>
+  className="pm-add-btn"
+  style={{ height: "50px" }}
+  disabled={adding}
+  onClick={() => onAddToCart(product, qty)}
+>
+  <span>{adding ? "Adding…" : "Add to Cart"}</span>
+</button>
           </div>
         ) : (
           <span className="pm-out-stock">✕ Out of Stock</span>
