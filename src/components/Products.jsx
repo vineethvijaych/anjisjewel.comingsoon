@@ -98,7 +98,7 @@ function ProductItem({ product, onAddToCart, addingId }) {
 </button>
           </div>
         ) : (
-          <span className="pm-out-stock">✕ Out of Stock</span>
+          <span className="pm-out-stock"style={{ height: "50px" }}>✕ Out of Stock</span>
         )}
       </div>
     </div>
