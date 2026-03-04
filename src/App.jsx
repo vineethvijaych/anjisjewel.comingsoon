@@ -7,11 +7,13 @@ import Cart from "./pages/Cart";
 import Success from "./pages/Success";
 import Orders from "./pages/Orders";
 import AdminOrders from "./pages/AdminOrders";
+import CartBar from "./components/CartBar";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Navbar />
+      <CartBar />
       <Routes>
         <Route path="/"              element={<Home />} />
         <Route path="/login"         element={<Login />} />

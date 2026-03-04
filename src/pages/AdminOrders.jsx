@@ -48,12 +48,28 @@ function ProductForm({ initial, onSave, onCancel }) {
 
     // Upload image if new file selected
     if (imgFile) {
-      const ext  = imgFile.name.split(".").pop();
-      const path = `products/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: uploadErr } = await supabase.storage
+      const ext  = imgFile.name.split(".").pop().toLowerCase();
+      const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+
+      // Convert to ArrayBuffer for reliable upload
+      const arrayBuffer = await imgFile.arrayBuffer();
+      const uint8 = new Uint8Array(arrayBuffer);
+
+      const { data: uploadData, error: uploadErr } = await supabase.storage
         .from("product-images")
-        .upload(path, imgFile, { upsert: true });
-      if (uploadErr) { setError("Image upload failed: " + uploadErr.message); setSaving(false); return; }
+        .upload(path, uint8, {
+          contentType: imgFile.type || "image/jpeg",
+          upsert: true,
+          cacheControl: "3600",
+        });
+
+      if (uploadErr) {
+        console.error("Upload error full:", uploadErr);
+        setError(`Image upload failed: ${uploadErr.message} (status: ${uploadErr.statusCode})`);
+        setSaving(false);
+        return;
+      }
+
       const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
       imageUrl = urlData.publicUrl;
     }

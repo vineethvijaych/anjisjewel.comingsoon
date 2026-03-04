@@ -19,6 +19,14 @@ function ProductItem({ product, onAddToCart, addingId }) {
   const [qty, setQty] = useState(1);
   const adding = addingId === product.id;
 
+  // Build spec pills
+  const specs = [
+    product.material && { label: "Material", value: product.material },
+    product.purity   && { label: "Purity",   value: product.purity },
+    product.weight   && { label: "Weight",   value: product.weight },
+    product.occasion && { label: "Occasion", value: product.occasion },
+  ].filter(Boolean);
+
   return (
     <div className="pm-product-item">
       <div className="pm-product-img-wrap">
@@ -32,22 +40,40 @@ function ProductItem({ product, onAddToCart, addingId }) {
       </div>
 
       <div className="pm-product-body">
+        {/* Top row: info left, price right */}
         <div className="pm-product-top">
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <h3 className="pm-product-name">{product.name}</h3>
-            {product.material && (
-              <p className="pm-product-meta">
-                {[product.material, product.purity, product.weight].filter(Boolean).join(" · ")}
-              </p>
+
+            {/* Spec pills */}
+            {specs.length > 0 && (
+              <div className="pm-product-meta">
+                {specs.map(s => (
+                  <span key={s.label} className="pm-spec-pill">
+                    <span className="pm-spec-pill-label">{s.label}</span>
+                    {s.value}
+                  </span>
+                ))}
+              </div>
             )}
-            {product.description && <p className="pm-product-desc">{product.description}</p>}
+
+            {product.description && (
+              <p className="pm-product-desc">{product.description}</p>
+            )}
           </div>
-          <p className="pm-product-price">₹ {Number(product.price).toLocaleString("en-IN")}</p>
+
+          {/* Price — right side, prominent */}
+          <div className="pm-product-price-wrap">
+            <p className="pm-product-price">₹ {Number(product.price).toLocaleString("en-IN")}</p>
+            <span className="pm-product-price-label">Incl. GST</span>
+          </div>
         </div>
 
+        <div className="pm-product-divider" />
+
+        {/* Actions */}
         {product.stock > 0 ? (
           <div className="pm-product-actions">
-            {/* Quantity control */}
             <div className="pm-qty-control">
               <button
                 className="pm-qty-btn"
@@ -60,20 +86,18 @@ function ProductItem({ product, onAddToCart, addingId }) {
                 onClick={() => setQty(q => Math.min(product.stock, q + 1))}
                 disabled={qty >= product.stock}
               >+</button>
-              <span className="pm-qty-stock">{product.stock} left</span>
             </div>
-
-            {/* Add to cart */}
+            <span className="pm-qty-stock">{product.stock} in stock</span>
             <button
               className="pm-add-btn"
               disabled={adding}
               onClick={() => onAddToCart(product, qty)}
             >
-              <span>{adding ? "Adding…" : `Add to Cart`}</span>
+              <span>{adding ? "Adding…" : "Add to Cart"}</span>
             </button>
           </div>
         ) : (
-          <p className="pm-out-stock">Out of Stock</p>
+          <span className="pm-out-stock">✕ Out of Stock</span>
         )}
       </div>
     </div>
