@@ -5,7 +5,7 @@ import { supabase } from "../supabase";
 // 🔥 MULTIPLE ADMINS
 const ADMIN_EMAILS = [
   "vineethcpz6881@gmail.com",
-  "anjithapullaikodi@gmail.com"
+  "anjisadmin@gmail.com"
 ];
 
 export default function AdminLogin() {
