@@ -4,7 +4,10 @@ import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';   // ← Added
 
-const ADMIN_EMAIL = "vineethcpz6881@gmail.com";
+const ADMIN_EMAILS = [
+  "vineethcpz6881@gmail.com",
+  "anjisadmin@gmail.com"
+];
 
 const CATEGORIES = ["Anklets", "Earrings", "Necklace", "Bracelets", "Bangles", "Minji"];
 
@@ -388,10 +391,10 @@ export default function Admin() {
 
   useEffect(() => {
     if (!user) return;
-    if (user.email !== ADMIN_EMAIL) {
-      navigate("/");
-      return;
-    }
+    if (!ADMIN_EMAILS.includes(user.email)) {
+  navigate("/");
+  return;
+}
     loadOrders();
     loadProducts();
   }, [user]);
