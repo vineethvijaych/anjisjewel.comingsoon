@@ -47,7 +47,7 @@ async function callEdge(fn, body) {
   return data;
 }
 
-export default function PaymentModal({ cart, subtotal, gst, total, shippingInfo, onClose }) {
+export default function PaymentModal({ cart, subtotal, total, shippingInfo, onClose }) {
   const [loading, setLoading] = useState(false);
   const [err, setErr]         = useState("");
   const [step, setStep]       = useState(""); // shows current step to user
@@ -67,7 +67,7 @@ export default function PaymentModal({ cart, subtotal, gst, total, shippingInfo,
         quantity:   item.quantity,
       }))),
       subtotal:         Number(subtotal),
-      gst:              Number(gst),
+      // gst:              Number(gst),
       total:            Number(total),
       payment_method:   "razorpay",
       status:           "paid",
@@ -201,10 +201,10 @@ export default function PaymentModal({ cart, subtotal, gst, total, shippingInfo,
                 <span>₹ {(Number(item.products?.price) * item.quantity).toLocaleString("en-IN")}</span>
               </div>
             ))}
-            <div className="modal-order-item" style={{ color:"var(--stone)" }}>
+            {/* <div className="modal-order-item" style={{ color:"var(--stone)" }}>
               <span>GST (3%)</span>
               <span>₹ {Number(gst).toLocaleString("en-IN")}</span>
-            </div>
+            </div> */}
           </div>
 
           <div className="modal-order-total">
@@ -224,14 +224,14 @@ export default function PaymentModal({ cart, subtotal, gst, total, shippingInfo,
             </div>
           )}
 
-          <p className="modal-section-label">Accepted Payment Methods</p>
-          <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:24 }}>
+          {/* <p className="modal-section-label">Accepted Payment Methods</p> */}
+          {/* <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:24 }}>
             {["💳 Credit / Debit Card","📱 UPI (GPay, PhonePe)","🏦 Net Banking","👜 Wallets","📋 EMI"].map(m => (
               <div key={m} style={{ display:"flex", alignItems:"center", gap:8, background:"var(--warm-white)", border:"1px solid rgba(0,0,0,0.08)", padding:"8px 14px", fontSize:12, color:"var(--text-muted)" }}>
                 {m}
               </div>
             ))}
-          </div>
+          </div> */}
 
           <div style={{ background:"rgba(13,40,24,0.04)", border:"1px solid rgba(13,40,24,0.1)", padding:"14px 18px", marginBottom:24, fontSize:12, color:"var(--text-muted)", lineHeight:1.7 }}>
             <strong style={{ color:"var(--forest)", display:"block", marginBottom:4 }}>✦ Powered by Razorpay</strong>

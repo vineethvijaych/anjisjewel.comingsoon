@@ -90,7 +90,7 @@ export default function Cart() {
       <div className="cart-page">
         <div className="cart-header">
           <p className="section-label">Your Selection</p>
-          <h1 className="section-title">Your <em>Cart</em></h1>
+          <h1 className="section-title" > <em >Your</em> <em>Cart</em></h1>
         </div>
 
         <div className="cart-layout">
