@@ -187,7 +187,7 @@ function CategoryModal({ category, products, onClose, onAddToCart, addingId }) {
         <div style={{
           background: "#0d2818",
           color: "white",
-          padding: "24px 32px",
+          padding: "12px 32px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start"
@@ -195,9 +195,9 @@ function CategoryModal({ category, products, onClose, onAddToCart, addingId }) {
           <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
             <span style={{ fontSize: "42px" }}>{meta.icon}</span>
             <div>
-              <p style={{ margin: "0", fontSize: "13px", opacity: "0.8" }}>COLLECTION</p>
+              {/* <p style={{ margin: "0", fontSize: "13px", opacity: "0.8" }}>COLLECTION</p> */}
               <h2 style={{ margin: "4px 0 6px 0", fontSize: "28px" }}>{category}</h2>
-              <p style={{ margin: 0, opacity: "0.85" }}>{meta.desc}</p>
+              {/* <p style={{ margin: 0, opacity: "0.85" }}>{meta.desc}</p> */}
             </div>
           </div>
           <button 
