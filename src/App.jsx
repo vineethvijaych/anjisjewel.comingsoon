@@ -12,11 +12,15 @@ import CartBar from "./components/CartBar";
 
 function Shell() {
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/admin");
+const isAdmin = location.pathname.startsWith("/admin");
 
+const isAuthPage =
+  location.pathname === "/login" ||
+  location.pathname === "/reset-password";
   return (
     <>
-      {!isAdmin && <Navbar />}
+      
+      {!isAdmin && !isAuthPage && <Navbar />}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -28,10 +32,12 @@ function Shell() {
 
         <Route path="/admin/xk9q2" element={<AdminLogin />} />
         <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route path="/reset-password" element={<Login />} />
       </Routes>
 
       {/* 🔥 ALWAYS SHOW */}
-      {!isAdmin && <CartBar />}
+      
+      {!isAdmin && !isAuthPage && <CartBar />}
     </>
   );
 }
