@@ -7,7 +7,7 @@ export default function Hero() {
       <div className="hero-orb hero-orb-2" />
 
       <div className="hero-content">
-        <p className="hero-label">Exclusive Collection 2025</p>
+        <p className="hero-label">Exclusive Collection </p>
         <h1>
           Where <em>Elegance</em><br />Meets Artistry
         </h1>
@@ -16,7 +16,7 @@ export default function Hero() {
           <a href="#products" className="btn-primary">
             <span>Explore Collection</span>
           </a>
-          <a href="#craft" className="btn-ghost">Our Story</a>
+          {/* <a href="#craft" className="btn-ghost">Our Story</a> */}
         </div>
       </div>
 

@@ -14,98 +14,141 @@ const CATEGORY_META = {
   Minji:     { icon: "✿", desc: "Exclusive signature collection" },
 };
 
-// ─── Product Item inside modal ───
 function ProductItem({ product, onAddToCart, addingId }) {
   const [qty, setQty] = useState(1);
+  const [showDetails, setShowDetails] = useState(false);
   const adding = addingId === product.id;
 
-  // Build spec pills
-  const specs = [
-    product.material && { label: "Material", value: product.material },
-    product.purity   && { label: "Purity",   value: product.purity },
-    product.weight   && { label: "Weight",   value: product.weight },
-    product.occasion && { label: "Occasion", value: product.occasion },
-  ].filter(Boolean);
-
   return (
-    <div className="pm-product-item">
-      <div className="pm-product-img-wrap">
+    <div style={{
+      background: "#fff",
+      borderRadius: "12px",
+      overflow: "hidden",
+      boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+      display: "flex",
+      flexDirection: "column",
+      height: "100%"
+    }}>
+      {/* Image */}
+      <div style={{
+        padding: "16px",
+        background: "#f5f1eb",
+        textAlign: "center"
+      }}>
         <img
           src={product.image || FALLBACK_IMG}
           alt={product.name}
-          loading="lazy"
-          onError={e => { e.currentTarget.src = FALLBACK_IMG; }}
+          onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }}
+          style={{
+            width: "100%",
+            height: "auto",
+            maxHeight: "260px",
+            objectFit: "contain",
+            borderRadius: "8px"
+          }}
         />
-        {product.stock === 0 && <div className="pm-sold-overlay">Sold Out</div>}
       </div>
 
-      <div className="pm-product-body">
-        {/* Top row: info left, price right */}
-        <div className="pm-product-top">
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h3 className="pm-product-name">{product.name}</h3>
+      {/* Content */}
+      <div style={{ padding: "18px", flex: 1, display: "flex", flexDirection: "column" }}>
+        <h3 style={{
+          fontFamily: "Cormorant Garamond, serif",
+          fontSize: "18px",
+          margin: "0 0 6px 0",
+          fontWeight: "500"
+        }}>
+          {product.name}
+        </h3>
 
-            {/* Spec pills */}
-            {specs.length > 0 && (
-              <div className="pm-product-meta">
-                {specs.map(s => (
-                  <span key={s.label} className="pm-spec-pill">
-                    <span className="pm-spec-pill-label">{s.label}</span>
-                    {s.value}
-                  </span>
-                ))}
-              </div>
-            )}
+        <p style={{
+          color: "#a8705c",
+          fontWeight: "600",
+          margin: "0 0 12px 0"
+        }}>
+          ₹ {product.price}
+        </p>
 
-            {product.description && (
-              <p className="pm-product-desc">{product.description}</p>
-            )}
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#666",
+            fontSize: "12.5px",
+            cursor: "pointer",
+            padding: "4px 0",
+            marginBottom: "8px",
+            textAlign: "left"
+          }}
+        >
+          {showDetails ? "Hide Details ▲" : "View Details ▼"}
+        </button>
+
+        {showDetails && (
+          <div style={{
+            fontSize: "13px",
+            color: "#555",
+            lineHeight: "1.5",
+            marginBottom: "12px",
+            flex: 1
+          }}>
+            {product.description && <p>{product.description}</p>}
+            {product.material && <p><strong>Material:</strong> {product.material}</p>}
+            {product.purity && <p><strong>Purity:</strong> {product.purity}</p>}
+            {product.weight && <p><strong>Weight:</strong> {product.weight}</p>}
+            {product.occasion && <p><strong>Occasion:</strong> {product.occasion}</p>}
           </div>
+        )}
 
-          {/* Price — right side, prominent */}
-          <div className="pm-product-price-wrap">
-            <p className="pm-product-price">₹ {Number(product.price).toLocaleString("en-IN")}</p>
-            <span className="pm-product-price-label">Incl. GST</span>
-          </div>
-        </div>
-
-        <div className="pm-product-divider" />
-
-        {/* Actions */}
         {product.stock > 0 ? (
-          <div className="pm-product-actions">
-            <div className="pm-qty-control">
-              <button
-                className="pm-qty-btn"
-                onClick={() => setQty(q => Math.max(1, q - 1))}
-                disabled={qty <= 1}
-              >−</button>
-              <span className="pm-qty-value">{qty}</span>
-              <button
-                className="pm-qty-btn"
-                onClick={() => setQty(q => Math.min(product.stock, q + 1))}
-                disabled={qty >= product.stock}
-              >+</button>
+          <div style={{ display: "flex", gap: "10px", marginTop: "auto" }}>
+            <div style={{
+              display: "flex",
+              border: "1px solid #ddd",
+              borderRadius: "6px",
+              overflow: "hidden"
+            }}>
+              <button onClick={() => setQty(q => Math.max(1, q-1))} style={{ width: "34px", background: "#f8f4f0" }}>-</button>
+              <span style={{ padding: "0 12px", display: "flex", alignItems: "center" }}>{qty}</span>
+              <button onClick={() => setQty(q => Math.min(product.stock, q+1))} style={{ width: "34px", background: "#f8f4f0" }}>+</button>
             </div>
-            <span className="pm-qty-stock">{product.stock} in stock</span>
+
             <button
-  className="pm-add-btn"
-  style={{ height: "50px" }}
-  disabled={adding}
-  onClick={() => onAddToCart(product, qty)}
->
-  <span>{adding ? "Adding…" : "Add to Cart"}</span>
-</button>
+              disabled={adding}
+              onClick={() => onAddToCart(product, qty)}
+              style={{
+                flex: 1,
+                height: "46px",
+                background: "#0d2818",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                fontSize: "12.5px",
+                letterSpacing: "0.5px",
+                cursor: "pointer"
+              }}
+            >
+              {adding ? "Adding..." : "ADD TO CART"}
+            </button>
           </div>
         ) : (
-          <span className="pm-out-stock"style={{ height: "50px" }}>✕ Out of Stock</span>
+          <div style={{
+            height: "46px",
+            background: "#eee",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "6px",
+            color: "#777"
+          }}>
+            Out of Stock
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-// ─── Category Products Modal ───
 function CategoryModal({ category, products, onClose, onAddToCart, addingId }) {
   const meta = CATEGORY_META[category] || { icon: "◆", desc: "" };
   const modalRef = useRef();
@@ -115,45 +158,78 @@ function CategoryModal({ category, products, onClose, onAddToCart, addingId }) {
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  const handleBackdrop = (e) => {
-    if (e.target === e.currentTarget) onClose();
-  };
-
   return (
-    <div className="pm-backdrop" onClick={handleBackdrop}>
-      <div className="pm-modal" ref={modalRef}>
-        {/* Modal Header */}
-        <div className="pm-header">
-          <div className="pm-header-left">
-            <span className="pm-header-icon">{meta.icon}</span>
+    <div 
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(13, 40, 24, 0.92)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+        padding: "20px"
+      }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div style={{
+        background: "#fff",
+        width: "100%",
+        maxWidth: "1080px",           // Good size for laptop
+        maxHeight: "90vh",
+        borderRadius: "16px",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
+      }}>
+        {/* Header */}
+        <div style={{
+          background: "#0d2818",
+          color: "white",
+          padding: "24px 32px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start"
+        }}>
+          <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+            <span style={{ fontSize: "42px" }}>{meta.icon}</span>
             <div>
-              <p className="pm-header-label">Collection</p>
-              <h2 className="pm-header-title">{category}</h2>
-              <p className="pm-header-desc">{meta.desc}</p>
+              <p style={{ margin: "0", fontSize: "13px", opacity: "0.8" }}>COLLECTION</p>
+              <h2 style={{ margin: "4px 0 6px 0", fontSize: "28px" }}>{category}</h2>
+              <p style={{ margin: 0, opacity: "0.85" }}>{meta.desc}</p>
             </div>
           </div>
-          <button className="pm-close" onClick={onClose}>✕</button>
+          <button 
+            onClick={onClose}
+            style={{ background: "none", border: "none", color: "white", fontSize: "28px", cursor: "pointer" }}
+          >
+            ✕
+          </button>
         </div>
 
-        {/* Products list */}
-        <div className="pm-products-list">
+        {/* Products Grid */}
+        <div style={{
+          padding: "32px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: "28px",
+          overflowY: "auto",
+          flex: 1,
+          background: "#f8f4f0"
+        }}>
           {products.length === 0 ? (
-            <div className="pm-empty">
-              <span className="pm-empty-icon">{meta.icon}</span>
-              <p className="pm-empty-text">New pieces arriving soon</p>
-              <p className="pm-empty-sub">Check back for our latest {category.toLowerCase()} collection</p>
+            <div style={{ textAlign: "center", padding: "60px 20px" }}>
+              <p style={{ fontSize: "60px", margin: "0 0 20px 0" }}>{meta.icon}</p>
+              <p>New pieces arriving soon</p>
             </div>
           ) : (
             products.map((p, i) => (
-              <div
-                key={p.id}
-                style={{ animationDelay: `${i * 0.06}s` }}
-                className="pm-item-wrapper"
-              >
-                <ProductItem
-                  product={p}
-                  onAddToCart={onAddToCart}
-                  addingId={addingId}
+              <div key={p.id} style={{ animationDelay: `${i * 0.05}s` }}>
+                <ProductItem 
+                  product={p} 
+                  onAddToCart={onAddToCart} 
+                  addingId={addingId} 
                 />
               </div>
             ))
@@ -164,35 +240,29 @@ function CategoryModal({ category, products, onClose, onAddToCart, addingId }) {
   );
 }
 
-// ─── Main Products Section ───
-export default function Products() {
-  const [products, setProducts]           = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [openCategory, setOpenCategory]   = useState(null);
-  const [addingId, setAddingId]           = useState(null);
+export default function Products({ onModalChange }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [openCategory, setOpenCategory] = useState(null);
+  const [addingId, setAddingId] = useState(null);
+
   const { fetchCartCount, user, addToast } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => { loadProducts(); }, []);
+  useEffect(() => { onModalChange?.(!!openCategory); }, [openCategory]);
 
   const loadProducts = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("products").select("*").order("created_at", { ascending: false });
     if (error) console.error(error);
     setProducts(data || []);
     setLoading(false);
   };
 
   const addToCart = async (product, qty = 1) => {
-    if (!user) {
-      addToast("Please sign in to add items to your cart", "error");
-      navigate("/login");
-      return;
-    }
-    if (product.stock === 0) { addToast("This item is out of stock", "error"); return; }
+    if (!user) { addToast("Please sign in to add items", "error"); navigate("/login"); return; }
+    if (product.stock === 0) { addToast("Out of stock", "error"); return; }
 
     setAddingId(product.id);
 
@@ -204,21 +274,16 @@ export default function Products() {
       .maybeSingle();
 
     if (existing) {
-      await supabase.from("cart")
-        .update({ quantity: existing.quantity + qty })
-        .eq("id", existing.id);
+      await supabase.from("cart").update({ quantity: existing.quantity + qty }).eq("id", existing.id);
     } else {
-      await supabase.from("cart").insert({
-        user_id: user.id, product_id: product.id, quantity: qty,
-      });
+      await supabase.from("cart").insert({ user_id: user.id, product_id: product.id, quantity: qty });
     }
 
     await fetchCartCount();
-    addToast(`${product.name} × ${qty} added to cart ✦`, "success");
+    addToast(`${product.name} × ${qty} added`, "success");
     setAddingId(null);
   };
 
-  // Group products by category
   const byCategory = Object.keys(CATEGORY_META).reduce((acc, cat) => {
     acc[cat] = products.filter(p => p.category === cat);
     return acc;
@@ -228,54 +293,80 @@ export default function Products() {
 
   return (
     <section id="products" className="products">
-      {/* Section header */}
-      <div className="products-header">
-        <p className="section-label">Fine Jewellery</p>
-        <h2 className="section-title">Our <em>Collections</em></h2>
-        <p className="products-subtitle">
+      <div style={{ textAlign: "center", padding: "40px 20px 20px" }}>
+        <p style={{ color: "#a8705c", letterSpacing: "2px", margin: 0 }}>Fine Jewellery</p>
+        <h2 style={{ fontSize: "42px", margin: "12px 0 8px" }}>Our <em>Collections</em></h2>
+        <p style={{ color: "#666", maxWidth: "600px", margin: "0 auto" }}>
           {loading ? "Loading…" : `${totalItems} handcrafted pieces across 6 collections`}
         </p>
       </div>
 
-      {/* Category grid — the MAIN UI */}
-      <div className="cat-grid">
+      {/* Category Grid */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+        gap: "28px",
+        padding: "20px",
+        maxWidth: "1400px",
+        margin: "0 auto"
+      }}>
         {Object.entries(CATEGORY_META).map(([cat, meta], i) => {
           const catProducts = byCategory[cat] || [];
           const count = catProducts.length;
-          // pick a featured image: first in-stock product image
           const featured = catProducts.find(p => p.stock > 0 && p.image) || catProducts[0];
 
           return (
             <button
               key={cat}
-              className="cat-card"
               onClick={() => setOpenCategory(cat)}
-              style={{ animationDelay: `${i * 0.08}s` }}
+              style={{
+                height: "420px",
+                borderRadius: "16px",
+                overflow: "hidden",
+                position: "relative",
+                background: "#fff",
+                boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+                border: "none",
+                cursor: "pointer",
+                animationDelay: `${i * 0.08}s`
+              }}
             >
-              {/* Background image */}
-              <div className="cat-card-bg">
+              <div style={{ height: "65%", position: "relative" }}>
                 {featured?.image ? (
                   <img
                     src={featured.image}
                     alt={cat}
-                    onError={e => { e.currentTarget.style.display = "none"; }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    onError={e => e.currentTarget.style.display = "none"}
                   />
                 ) : (
-                  <div className="cat-card-placeholder">{meta.icon}</div>
+                  <div style={{
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "80px",
+                    background: "#f5f1eb"
+                  }}>
+                    {meta.icon}
+                  </div>
                 )}
-                <div className="cat-card-overlay" />
+                <div style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "linear-gradient(to top, rgba(13,40,24,0.7), transparent)"
+                }} />
               </div>
 
-              {/* Content */}
-              <div className="cat-card-content">
-                <span className="cat-card-icon">{meta.icon}</span>
-                <h3 className="cat-card-name">{cat}</h3>
-                <p className="cat-card-desc">{meta.desc}</p>
-                <div className="cat-card-footer">
-                  <span className="cat-card-count">
+              <div style={{ padding: "20px", textAlign: "left", height: "35%" }}>
+                <span style={{ fontSize: "28px" }}>{meta.icon}</span>
+                <h3 style={{ margin: "8px 0 6px", fontSize: "22px" }}>{cat}</h3>
+                <p style={{ color: "#666", fontSize: "14.5px", marginBottom: "12px" }}>{meta.desc}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: "14px", color: "#a8705c" }}>
                     {loading ? "…" : count === 0 ? "Coming soon" : `${count} piece${count !== 1 ? "s" : ""}`}
                   </span>
-                  <span className="cat-card-arrow">→</span>
+                  <span style={{ fontSize: "18px" }}>→</span>
                 </div>
               </div>
             </button>
@@ -283,7 +374,6 @@ export default function Products() {
         })}
       </div>
 
-      {/* Category modal */}
       {openCategory && (
         <CategoryModal
           category={openCategory}
