@@ -9,7 +9,17 @@ const ADMIN_EMAILS = [
   "anjisadmin@gmail.com"
 ];
 
-const CATEGORIES = ["Anklets", "Earrings", "Necklace", "Bracelets", "Bangles", "Minji"];
+const CATEGORIES = [
+  "Anklets",
+  "Earrings",
+  "Necklace",
+  "Bracelets",
+  "Bangles",
+  "Minji",
+  "Hip Chain",
+  "Hair Accessories",
+  "Finger Ring"
+];
 
 const STATUS_COLORS = {
   paid:      { color: "#10b981", bg: "#ecfdf5", border: "#10b981" },

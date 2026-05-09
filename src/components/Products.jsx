@@ -6,12 +6,15 @@ import { useNavigate } from "react-router-dom";
 const FALLBACK_IMG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23f5f1eb'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='80' fill='%23c9907a' opacity='0.25'%3E%E2%97%86%3C/text%3E%3C/svg%3E`;
 
 const CATEGORY_META = {
-  Anklets:   { icon: "✦", desc: "Delicate chains for graceful ankles" },
-  Earrings:  { icon: "◈", desc: "From studs to chandelier drops" },
-  Necklace:  { icon: "◆", desc: "Timeless pendants & layered pieces" },
-  Bracelets: { icon: "◉", desc: "Stacked or solo, for every wrist" },
-  Bangles:   { icon: "○", desc: "Traditional & contemporary bangles" },
-  Minji:     { icon: "✿", desc: "Exclusive signature collection" },
+  Anklets:          { icon: "✦", desc: "Delicate chains for graceful ankles" },
+  Earrings:         { icon: "◈", desc: "From studs to chandelier drops" },
+  Necklace:         { icon: "◆", desc: "Timeless pendants & layered pieces" },
+  Bracelets:        { icon: "◉", desc: "Stacked or solo, for every wrist" },
+  Bangles:          { icon: "○", desc: "Traditional & contemporary bangles" },
+  Minji:            { icon: "✿", desc: "Exclusive signature collection" },
+  "Hip Chain":      { icon: "❖", desc: "Elegant waist chains with modern charm" },
+  "Hair Accessories": { icon: "❀", desc: "Stylish pieces to complete your hairstyle" },
+  "Finger Ring":    { icon: "◍", desc: "Minimal to statement rings for every style" },
 };
 
 function ProductItem({ product, onAddToCart, addingId }) {
