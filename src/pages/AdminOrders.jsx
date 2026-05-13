@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../supabase";
-import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
 
@@ -177,7 +176,6 @@ export default function Admin() {
   const [categorySaving, setCategorySaving] = useState(false);
   const [categoryError, setCategoryError] = useState("");
 
-  const { user } = useCart();
   const navigate = useNavigate();
 
   const loadOrders = useCallback(async () => {
@@ -203,16 +201,66 @@ export default function Admin() {
     }
   }, []);
 
-  useEffect(() => {
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
+ useEffect(() => {
+  let mounted = true;
+
+  const checkAdminAccess = async () => {
+    try {
+      setLoading(true);
+
+      // Get current session directly from Supabase
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const currentUser = session?.user;
+
+      // No logged-in user
+      if (!currentUser) {
+        navigate("/");
+        return;
+      }
+
+      // Not admin
+      if (!ADMIN_EMAILS.includes(currentUser.email)) {
+        navigate("/");
+        return;
+      }
+
+      // Load admin data
+      await Promise.all([
+        loadOrders(),
+        loadProducts(),
+        loadCategories(),
+      ]);
+
+      if (mounted) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Admin auth error:", error);
       navigate("/");
-      return;
     }
-    loadOrders();
-    loadProducts();
-    loadCategories();
-    setLoading(false);
-  }, [user, navigate]);
+  };
+
+  checkAdminAccess();
+
+  // Listen for auth refresh/login/logout changes
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    const currentUser = session?.user;
+
+    if (!currentUser || !ADMIN_EMAILS.includes(currentUser.email)) {
+      navigate("/");
+    }
+  });
+
+  return () => {
+    mounted = false;
+    subscription.unsubscribe();
+  };
+}, [navigate, loadOrders, loadProducts, loadCategories]);
 
   const exportOrdersToExcel = () => {
     const filtered = filter === "all" ? orders : orders.filter(o => o.status === filter);
