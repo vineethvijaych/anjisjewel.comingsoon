@@ -126,8 +126,8 @@ function ProductItem({ product, onAddToCart, addingId, onImageOpen, onShare }) {
   style={{
     position: "relative",
     width: "100%",
-    minHeight: "260px",
-    display: "flex",
+height: "260px",
+overflow: "hidden",    display: "flex",
     alignItems: "center",
     justifyContent: "center",
   }}
@@ -155,26 +155,37 @@ function ProductItem({ product, onAddToCart, addingId, onImageOpen, onShare }) {
     </div>
   )}
 
-  <img
-    src={product.image || FALLBACK_IMG}
-    alt={product.name}
-    loading="lazy"
-    decoding="async"
-    onLoad={() => setImgLoading(false)}
-    onError={(e) => {
-      e.currentTarget.src = FALLBACK_IMG;
-      setImgLoading(false);
-    }}
-    style={{
-      width: "100%",
-      height: "auto",
-      maxHeight: "260px",
-      objectFit: "contain",
-      borderRadius: "8px",
-      opacity: imgLoading ? 0 : 1,
-      transition: "opacity 0.35s ease",
-    }}
-  />
+ <img
+  src={product.image || FALLBACK_IMG}
+  alt={product.name}
+  loading="lazy"
+  decoding="sync"
+  onLoad={(e) => {
+    e.currentTarget.style.opacity = "1";
+    setImgLoading(false);
+  }}
+  onError={(e) => {
+    e.currentTarget.src = FALLBACK_IMG;
+    e.currentTarget.style.opacity = "1";
+    setImgLoading(false);
+  }}
+  style={{
+    width: "100%",
+    height: "260px",
+    objectFit: "contain",
+    borderRadius: "8px",
+
+    opacity: 0,
+
+    transition: "opacity 0.4s ease",
+
+    willChange: "opacity",
+    backfaceVisibility: "hidden",
+    transform: "translateZ(0)",
+
+    display: "block",
+  }}
+/>
 </div>
       <span style={{ position: "absolute", right: 22, bottom: 22, background: "rgba(13,40,24,0.86)", color: "#fff", borderRadius: 999, padding: "6px 10px", fontSize: 11 }}>
         Tap to zoom
