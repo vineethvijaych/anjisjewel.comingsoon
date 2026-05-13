@@ -8,6 +8,7 @@ const ADMIN_EMAILS = [
   "anjisadmin@gmail.com"
 ];
 
+
 const DEFAULT_CATEGORIES = [
   { name: "Anklets", icon: "✦", description: "Delicate chains for graceful ankles", sort_order: 1, is_active: true },
   { name: "Earrings", icon: "◈", description: "From studs to chandelier drops", sort_order: 2, is_active: true },
@@ -80,8 +81,18 @@ function ProductForm({ initial, onSave, onCancel, categories = [] }) {
         const { error: uploadError } = await supabase.storage.from('product-images').upload(path, imgFile);
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(path);
-        imageUrl = publicUrl;
+const { data } = supabase.storage
+  .from("product-images")
+  .getPublicUrl(path, {
+    transform: {
+      width: 600,
+      height: 600,
+      resize: "contain",
+      quality: 70,
+    },
+  });
+
+imageUrl = data.publicUrl;        imageUrl = publicUrl;
       } catch (err) {
         setError("Image upload failed. Please try again.");
         setSaving(false);
@@ -161,6 +172,8 @@ function ProductForm({ initial, onSave, onCancel, categories = [] }) {
 
 // ====================== MAIN ADMIN COMPONENT ======================
 export default function Admin() {
+  const [selectedOrder, setSelectedOrder] = useState(null);
+const [showOrderModal, setShowOrderModal] = useState(false);
   const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
@@ -263,34 +276,78 @@ export default function Admin() {
 }, [navigate, loadOrders, loadProducts, loadCategories]);
 
   const exportOrdersToExcel = () => {
-    const filtered = filter === "all" ? orders : orders.filter(o => o.status === filter);
-    if (filtered.length === 0) return alert("No orders to export!");
+  const filtered =
+    filter === "all"
+      ? orders
+      : orders.filter(o => o.status === filter);
 
-    const exportData = [];
-    filtered.forEach(order => {
-      if (order.items?.length > 0) {
-        order.items.forEach(item => {
-          exportData.push({
-            "Order ID": order.order_id,
-            "Date": new Date(order.created_at).toLocaleString("en-IN"),
-            "Customer Name": order.shipping_name || "N/A",
-            "Phone": order.shipping_phone || "N/A",
-            "Status": order.status?.toUpperCase(),
-            "Product Name": item.name,
-            "Quantity": item.quantity,
-            "Price (₹)": item.price,
-            "Item Total (₹)": item.quantity * item.price,
-            "Order Total (₹)": order.total,
-          });
+  if (filtered.length === 0) {
+    return alert("No orders to export!");
+  }
+
+  const exportData = [];
+
+  filtered.forEach(order => {
+    if (order.items?.length > 0) {
+      order.items.forEach(item => {
+        exportData.push({
+          "Order ID": order.order_id,
+
+          "Date": new Date(order.created_at).toLocaleString("en-IN"),
+
+          "Customer Name": order.shipping_name || "N/A",
+
+          "Phone": order.shipping_phone || "N/A",
+
+          "Address": order.shipping_address || "N/A",
+
+          "City": order.shipping_city || "N/A",
+
+          "State": order.shipping_state || "N/A",
+
+          "Pincode": order.shipping_pincode || "N/A",
+
+          "Country": order.shipping_country || "India",
+
+          "Full Shipping Address": [
+            order.shipping_address,
+            order.shipping_city,
+            order.shipping_state,
+            order.shipping_pincode,
+            order.shipping_country,
+          ]
+            .filter(Boolean)
+            .join(", "),
+
+          "Status": order.status?.toUpperCase(),
+
+          "Product Name": item.name,
+
+          "Quantity": item.quantity,
+
+          "Price (₹)": item.price,
+
+          "Item Total (₹)": item.quantity * item.price,
+
+          "Order Total (₹)": order.total,
         });
-      }
-    });
+      });
+    }
+  });
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Orders");
-    XLSX.writeFile(wb, `Orders_Export_${new Date().toISOString().slice(0,10)}.xlsx`);
-  };
+  const ws = XLSX.utils.json_to_sheet(exportData);
+
+  const wb = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(wb, ws, "Orders");
+
+  XLSX.writeFile(
+    wb,
+    `Orders_Export_${new Date()
+      .toISOString()
+      .slice(0, 10)}.xlsx`
+  );
+};
 
   const updateStatus = async (id, status) => {
     await supabase.from("orders").update({ status }).eq("id", id);
@@ -358,8 +415,184 @@ export default function Admin() {
   return (
     <div style={{ padding: "32px 40px", maxWidth: "1400px", margin: "0 auto", background: "#f9fafb", minHeight: "100vh" }}>
       <p style={{ color: "#6b7280", fontWeight: "500" }}>ADMIN PANEL</p>
-      <h1 style={{ fontSize: "32px", fontWeight: "700", marginBottom: "30px" }}>Dashboard</h1>
+<h1
+  style={{
+    fontSize: "34px",
+    fontWeight: "800",
+    marginBottom: "8px",
+    color: "#111827",
+    letterSpacing: "-0.5px",
+  }}
+>
+  Dashboard
+</h1>
 
+<p
+  style={{
+    color: "#6b7280",
+    marginBottom: "28px",
+    fontSize: "15px",
+  }}
+>
+  Manage orders, products, categories and business insights
+</p>
+
+{/* DASHBOARD STATS */}
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: "20px",
+    marginBottom: "32px",
+  }}
+>
+  {/* Revenue */}
+  <div
+    style={{
+      background: "linear-gradient(135deg, #111827, #1f2937)",
+      color: "#fff",
+      borderRadius: "18px",
+      padding: "24px",
+      boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    }}
+  >
+    <div style={{ fontSize: "14px", opacity: 0.8 }}>
+      Total Revenue
+    </div>
+
+    <div
+      style={{
+        fontSize: "32px",
+        fontWeight: "800",
+        marginTop: "12px",
+      }}
+    >
+      ₹
+      {orders
+        .filter(o => o.status !== "cancelled")
+        .reduce((sum, o) => sum + Number(o.total || 0), 0)
+        .toLocaleString("en-IN")}
+    </div>
+
+    <div
+      style={{
+        marginTop: "14px",
+        fontSize: "13px",
+        opacity: 0.75,
+      }}
+    >
+      All successful orders revenue
+    </div>
+  </div>
+
+  {/* Orders */}
+  <div
+    style={{
+      background: "#fff",
+      border: "1px solid #e5e7eb",
+      borderRadius: "18px",
+      padding: "24px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.04)",
+    }}
+  >
+    <div style={{ fontSize: "14px", color: "#6b7280" }}>
+      Total Orders
+    </div>
+
+    <div
+      style={{
+        fontSize: "32px",
+        fontWeight: "800",
+        marginTop: "12px",
+        color: "#111827",
+      }}
+    >
+      {orders.length}
+    </div>
+
+    <div
+      style={{
+        marginTop: "14px",
+        fontSize: "13px",
+        color: "#6b7280",
+      }}
+    >
+      {orders.filter(o => o.status === "paid").length} paid orders
+    </div>
+  </div>
+
+  {/* Products */}
+  <div
+    style={{
+      background: "#fff",
+      border: "1px solid #e5e7eb",
+      borderRadius: "18px",
+      padding: "24px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.04)",
+    }}
+  >
+    <div style={{ fontSize: "14px", color: "#6b7280" }}>
+      Total Products
+    </div>
+
+    <div
+      style={{
+        fontSize: "32px",
+        fontWeight: "800",
+        marginTop: "12px",
+        color: "#111827",
+      }}
+    >
+      {products.length}
+    </div>
+
+    <div
+      style={{
+        marginTop: "14px",
+        fontSize: "13px",
+        color: "#6b7280",
+      }}
+    >
+      {products.filter(p => Number(p.stock) <= 5).length} low stock products
+    </div>
+  </div>
+
+  {/* Categories */}
+  <div
+    style={{
+      background: "#fff",
+      border: "1px solid #e5e7eb",
+      borderRadius: "18px",
+      padding: "24px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.04)",
+    }}
+  >
+    <div style={{ fontSize: "14px", color: "#6b7280" }}>
+      Categories
+    </div>
+
+    <div
+      style={{
+        fontSize: "32px",
+        fontWeight: "800",
+        marginTop: "12px",
+        color: "#111827",
+      }}
+    >
+      {categories.length}
+    </div>
+
+    <div
+      style={{
+        marginTop: "14px",
+        fontSize: "13px",
+        color: "#6b7280",
+      }}
+    >
+      Active product categories
+    </div>
+  </div>
+</div>
       {/* Tabs */}
       <div style={{ display: "inline-flex", background: "#f3f4f6", padding: "6px", borderRadius: "10px", marginBottom: "30px" }}>
         {["orders", "products", "categories"].map(t => (
@@ -406,35 +639,269 @@ export default function Admin() {
             </button>
           </div>
 
-          <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+<div
+  style={{
+    background: "#ffffff",
+    borderRadius: "20px",
+    border: "1px solid #e5e7eb",
+    overflow: "hidden",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.05)",
+  }}
+>            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "#f9fafb" }}>
-                  <th style={{ padding: "16px", textAlign: "left" }}>Order ID</th>
-                  <th style={{ padding: "16px", textAlign: "left" }}>Date</th>
-                  <th style={{ padding: "16px", textAlign: "left" }}>Customer</th>
-                  <th style={{ padding: "16px", textAlign: "left" }}>Total</th>
-                  <th style={{ padding: "16px", textAlign: "left" }}>Status</th>
-                  <th style={{ padding: "16px" }}>Action</th>
-                </tr>
-              </thead>
+  <tr
+    style={{
+      background: "#111827",
+      color: "#fff",
+    }}
+  >
+    <th
+      style={{
+        padding: "18px",
+        textAlign: "left",
+        fontSize: "13px",
+        fontWeight: "700",
+        textTransform: "uppercase",
+      }}
+    >
+      Order ID
+    </th>
+
+    <th
+      style={{
+        padding: "18px",
+        textAlign: "left",
+        fontSize: "13px",
+        fontWeight: "700",
+        textTransform: "uppercase",
+      }}
+    >
+      Date & Time
+    </th>
+
+    <th
+      style={{
+        padding: "18px",
+        textAlign: "left",
+        fontSize: "13px",
+        fontWeight: "700",
+        textTransform: "uppercase",
+      }}
+    >
+      Customer Details
+    </th>
+
+    <th
+      style={{
+        padding: "18px",
+        textAlign: "left",
+        fontSize: "13px",
+        fontWeight: "700",
+        textTransform: "uppercase",
+      }}
+    >
+      Total
+    </th>
+
+    <th
+      style={{
+        padding: "18px",
+        textAlign: "left",
+        fontSize: "13px",
+        fontWeight: "700",
+        textTransform: "uppercase",
+      }}
+    >
+      Status
+    </th>
+
+    <th
+      style={{
+        padding: "18px",
+        textAlign: "center",
+        fontSize: "13px",
+        fontWeight: "700",
+        textTransform: "uppercase",
+      }}
+    >
+      Actions
+    </th>
+  </tr>
+</thead>
               <tbody>
                 {filteredOrders.map(order => (
-                  <tr key={order.id} style={{ borderTop: "1px solid #e5e7eb" }}>
-                    <td style={{ padding: "16px" }}>{order.order_id}</td>
-                    <td style={{ padding: "16px" }}>{new Date(order.created_at).toLocaleDateString("en-IN")}</td>
-                    <td style={{ padding: "16px" }}>{order.shipping_name}</td>
-                    <td style={{ padding: "16px" }}>₹{order.total}</td>
-                    <td style={{ padding: "16px" }}>
-                      <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)} style={{ padding: "6px 10px", borderRadius: "6px" }}>
-                        <option value="paid">Paid</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                    </td>
-                    <td style={{ padding: "16px" }}>View Details</td>
-                  </tr>
+<tr
+  key={order.id}
+  style={{
+    borderTop: "1px solid #f3f4f6",
+    transition: "0.2s",
+    background:
+      order.status === "cancelled"
+        ? "#fef2f2"
+        : "#ffffff",
+  }}
+>
+  {/* ORDER ID */}
+  <td style={{ padding: "20px" }}>
+    <div
+      style={{
+        fontWeight: "700",
+        color: "#111827",
+        fontSize: "14px",
+      }}
+    >
+      #{order.order_id}
+    </div>
+
+    <div
+      style={{
+        fontSize: "12px",
+        color: "#9ca3af",
+        marginTop: "4px",
+      }}
+    >
+      {new Date(order.created_at).toLocaleTimeString("en-IN")}
+    </div>
+  </td>
+
+  {/* DATE */}
+  <td style={{ padding: "20px" }}>
+    <div
+      style={{
+        fontWeight: "600",
+        color: "#111827",
+      }}
+    >
+      {new Date(order.created_at).toLocaleDateString("en-IN")}
+    </div>
+
+    <div
+      style={{
+        fontSize: "12px",
+        color: "#6b7280",
+        marginTop: "4px",
+      }}
+    >
+      {new Date(order.created_at).toLocaleTimeString("en-IN")}
+    </div>
+  </td>
+
+  {/* CUSTOMER */}
+  <td
+    style={{
+      padding: "20px",
+      lineHeight: "1.6",
+    }}
+  >
+    <div
+      style={{
+        fontWeight: "700",
+        color: "#111827",
+      }}
+    >
+      {order.shipping_name || "N/A"}
+    </div>
+
+    <div
+      style={{
+        color: "#6b7280",
+        fontSize: "13px",
+      }}
+    >
+      {order.shipping_phone || "N/A"}
+    </div>
+
+    <div
+      style={{
+        marginTop: "6px",
+        fontSize: "13px",
+        color: "#374151",
+      }}
+    >
+      {[
+        order.shipping_address,
+        order.shipping_city,
+        order.shipping_state,
+        order.shipping_pincode,
+        order.shipping_country,
+      ]
+        .filter(Boolean)
+        .join(", ") || "Address not available"}
+    </div>
+  </td>
+
+  {/* TOTAL */}
+  <td style={{ padding: "20px" }}>
+    <div
+      style={{
+        fontWeight: "800",
+        color: "#059669",
+        fontSize: "16px",
+      }}
+    >
+      ₹{Number(order.total).toLocaleString("en-IN")}
+    </div>
+  </td>
+
+  {/* STATUS */}
+  <td style={{ padding: "20px" }}>
+    <select
+      value={order.status}
+      onChange={(e) =>
+        updateStatus(order.id, e.target.value)
+      }
+      style={{
+        padding: "10px 14px",
+        borderRadius: "10px",
+        border: "1px solid #d1d5db",
+        background:
+          order.status === "paid"
+            ? "#ecfdf5"
+            : order.status === "shipped"
+            ? "#eff6ff"
+            : order.status === "delivered"
+            ? "#f0fdf4"
+            : "#fef2f2",
+        fontWeight: "700",
+        fontSize: "13px",
+        outline: "none",
+        cursor: "pointer",
+      }}
+    >
+      <option value="paid">Paid</option>
+      <option value="shipped">Shipped</option>
+      <option value="delivered">Delivered</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+  </td>
+
+  {/* ACTION */}
+  <td
+    style={{
+      padding: "20px",
+      textAlign: "center",
+    }}
+  >
+    <button
+      onClick={() => {
+        setSelectedOrder(order);
+        setShowOrderModal(true);
+      }}
+      style={{
+        padding: "10px 16px",
+        borderRadius: "10px",
+        border: "none",
+        background: "#111827",
+        color: "#fff",
+        fontWeight: "600",
+        cursor: "pointer",
+        fontSize: "13px",
+      }}
+    >
+      View Details
+    </button>
+  </td>
+</tr>
                 ))}
               </tbody>
             </table>
@@ -464,9 +931,23 @@ export default function Admin() {
                   </button>
                 ))}
               </div>
-              <button onClick={() => setShowForm(true)} style={{ padding: "14px 28px", background: "#111827", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "600" }}>
-                + Add New Product
-              </button>
+              <button
+  onClick={() => setShowForm(true)}
+  style={{
+    padding: "14px 28px",
+    background: "#111827",
+    color: "#fff",
+    border: "none",
+    borderRadius: "12px",
+    fontWeight: "700",
+    cursor: "pointer",
+    fontSize: "14px",
+    boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+    transition: "0.2s",
+  }}
+>
+  + Add New Product
+</button>
             </div>
           )}
 
@@ -483,8 +964,25 @@ export default function Admin() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "24px" }}>
               {filteredProducts.map(p => (
                 <div key={p.id} style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", overflow: "hidden" }}>
-                  {p.image && <img src={p.image} alt={p.name} style={{ width: "100%", height: "200px", objectFit: "cover" }} />}
-                  <div style={{ padding: "16px" }}>
+{p.image && (
+  <img
+    src={p.image}
+    alt={p.name}
+    loading="lazy"
+    decoding="async"
+    onError={(e) => {
+      e.target.src =
+        "https://placehold.co/600x600?text=No+Image";
+    }}
+    style={{
+      width: "100%",
+      height: "220px",
+      objectFit: "cover",
+      background: "#f3f4f6",
+      display: "block",
+    }}
+  />
+)}                 <div style={{ padding: "16px" }}>
                     <h4 style={{ margin: "0 0 8px 0" }}>{p.name}</h4>
                     <p style={{ margin: "0 0 12px 0", color: "#10b981", fontWeight: "600" }}>₹{p.price}</p>
                     <p>Stock: {p.stock}</p>
@@ -560,6 +1058,316 @@ export default function Admin() {
           </div>
         </div>
       )}
+      {/* ORDER DETAILS MODAL */}
+{showOrderModal && selectedOrder && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.55)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999,
+      padding: "20px",
+    }}
+  >
+    <div
+      style={{
+        width: "100%",
+        maxWidth: "850px",
+        maxHeight: "90vh",
+        overflowY: "auto",
+        background: "#fff",
+        borderRadius: "24px",
+        boxShadow: "0 25px 60px rgba(0,0,0,0.25)",
+      }}
+    >
+      {/* HEADER */}
+      <div
+        style={{
+          padding: "24px 30px",
+          borderBottom: "1px solid #e5e7eb",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "28px",
+              fontWeight: "800",
+              color: "#111827",
+            }}
+          >
+            Order Details
+          </h2>
+
+          <p
+            style={{
+              margin: "8px 0 0 0",
+              color: "#6b7280",
+              fontSize: "14px",
+            }}
+          >
+            Order #{selectedOrder.order_id}
+          </p>
+        </div>
+
+        <button
+          onClick={() => setShowOrderModal(false)}
+          style={{
+            width: "42px",
+            height: "42px",
+            borderRadius: "50%",
+            border: "none",
+            background: "#f3f4f6",
+            cursor: "pointer",
+            fontSize: "20px",
+            fontWeight: "700",
+          }}
+        >
+          ×
+        </button>
+      </div>
+
+      {/* BODY */}
+      <div style={{ padding: "30px" }}>
+        {/* CUSTOMER INFO */}
+        <div
+          style={{
+            background: "#f9fafb",
+            borderRadius: "18px",
+            padding: "24px",
+            marginBottom: "24px",
+          }}
+        >
+          <h3
+            style={{
+              marginTop: 0,
+              marginBottom: "18px",
+              color: "#111827",
+            }}
+          >
+            Customer Information
+          </h3>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+              gap: "18px",
+            }}
+          >
+            <div>
+              <div style={{ color: "#6b7280", fontSize: "13px" }}>
+                Customer Name
+              </div>
+
+              <div style={{ fontWeight: "700", marginTop: "6px" }}>
+                {selectedOrder.shipping_name || "N/A"}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ color: "#6b7280", fontSize: "13px" }}>
+                Phone Number
+              </div>
+
+              <div style={{ fontWeight: "700", marginTop: "6px" }}>
+                {selectedOrder.shipping_phone || "N/A"}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ color: "#6b7280", fontSize: "13px" }}>
+                Order Date
+              </div>
+
+              <div style={{ fontWeight: "700", marginTop: "6px" }}>
+                {new Date(selectedOrder.created_at).toLocaleString("en-IN")}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ color: "#6b7280", fontSize: "13px" }}>
+                Status
+              </div>
+
+              <div
+                style={{
+                  marginTop: "6px",
+                  display: "inline-block",
+                  padding: "8px 14px",
+                  borderRadius: "999px",
+                  background: "#111827",
+                  color: "#fff",
+                  fontWeight: "700",
+                  fontSize: "12px",
+                  textTransform: "uppercase",
+                }}
+              >
+                {selectedOrder.status}
+              </div>
+            </div>
+          </div>
+
+          {/* ADDRESS */}
+          <div style={{ marginTop: "24px" }}>
+            <div
+              style={{
+                color: "#6b7280",
+                fontSize: "13px",
+                marginBottom: "8px",
+              }}
+            >
+              Shipping Address
+            </div>
+
+            <div
+              style={{
+                background: "#fff",
+                border: "1px solid #e5e7eb",
+                borderRadius: "14px",
+                padding: "16px",
+                lineHeight: "1.7",
+                color: "#111827",
+              }}
+            >
+              {[
+                selectedOrder.shipping_address,
+                selectedOrder.shipping_city,
+                selectedOrder.shipping_state,
+                selectedOrder.shipping_pincode,
+                selectedOrder.shipping_country,
+              ]
+                .filter(Boolean)
+                .join(", ") || "Address not available"}
+            </div>
+          </div>
+        </div>
+
+        {/* ORDER ITEMS */}
+        <div>
+          <h3
+            style={{
+              marginBottom: "18px",
+              color: "#111827",
+            }}
+          >
+            Ordered Products
+          </h3>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+            }}
+          >
+            {selectedOrder.items?.map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "18px",
+                  padding: "18px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "16px",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontWeight: "700",
+                      color: "#111827",
+                      fontSize: "16px",
+                    }}
+                  >
+                    {item.name}
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "6px",
+                      color: "#6b7280",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Qty: {item.quantity}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    fontWeight: "800",
+                    color: "#059669",
+                    fontSize: "18px",
+                  }}
+                >
+                  ₹{item.price * item.quantity}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <div
+          style={{
+            marginTop: "30px",
+            paddingTop: "24px",
+            borderTop: "1px solid #e5e7eb",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <div
+              style={{
+                color: "#6b7280",
+                fontSize: "13px",
+              }}
+            >
+              Total Amount
+            </div>
+
+            <div
+              style={{
+                fontSize: "32px",
+                fontWeight: "800",
+                color: "#111827",
+                marginTop: "6px",
+              }}
+            >
+              ₹{Number(selectedOrder.total).toLocaleString("en-IN")}
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowOrderModal(false)}
+            style={{
+              padding: "14px 24px",
+              borderRadius: "12px",
+              border: "none",
+              background: "#111827",
+              color: "#fff",
+              fontWeight: "700",
+              cursor: "pointer",
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

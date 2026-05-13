@@ -103,6 +103,8 @@ fontWeight: 600,
 function ProductItem({ product, onAddToCart, addingId, onImageOpen, onShare }) {
    const [qty, setQty] = useState(1);
    const [showDetails, setShowDetails] = useState(false);
+   
+   const [imgLoading, setImgLoading] = useState(true);
    const adding = addingId === product.id;
  
    return (
@@ -120,18 +122,60 @@ function ProductItem({ product, onAddToCart, addingId, onImageOpen, onShare }) {
       aria-label={`Open ${product.name} image`}
       style={{ padding: "16px", background: "#f5f1eb", textAlign: "center", border: "none", position: "relative" }}
     >
-         <img
-           src={product.image || FALLBACK_IMG}
-           alt={product.name}
-           onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }}
-           style={{
-             width: "100%",
-             height: "auto",
-             maxHeight: "260px",
-             objectFit: "contain",
-             borderRadius: "8px"
-           }}
-         />
+        <div
+  style={{
+    position: "relative",
+    width: "100%",
+    minHeight: "260px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  {/* LOADING SKELETON */}
+  {imgLoading && (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        borderRadius: "8px",
+        overflow: "hidden",
+        background: "#ece7df",
+      }}
+    >
+      <div
+        style={{
+          width: "40%",
+          height: "100%",
+          background:
+            "linear-gradient(to right, transparent, rgba(255,255,255,0.55), transparent)",
+          animation: "shimmer 1.2s infinite",
+        }}
+      />
+    </div>
+  )}
+
+  <img
+    src={product.image || FALLBACK_IMG}
+    alt={product.name}
+    loading="lazy"
+    decoding="async"
+    onLoad={() => setImgLoading(false)}
+    onError={(e) => {
+      e.currentTarget.src = FALLBACK_IMG;
+      setImgLoading(false);
+    }}
+    style={{
+      width: "100%",
+      height: "auto",
+      maxHeight: "260px",
+      objectFit: "contain",
+      borderRadius: "8px",
+      opacity: imgLoading ? 0 : 1,
+      transition: "opacity 0.35s ease",
+    }}
+  />
+</div>
       <span style={{ position: "absolute", right: 22, bottom: 22, background: "rgba(13,40,24,0.86)", color: "#fff", borderRadius: 999, padding: "6px 10px", fontSize: 11 }}>
         Tap to zoom
       </span>
@@ -373,7 +417,22 @@ const byCategory = useMemo(() => {
    const totalItems = products.length;
  
    return (
-     <section id="products" className="products">
+  <>
+    <style>
+      {`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-150%);
+          }
+
+          100% {
+            transform: translateX(350%);
+          }
+        }
+      `}
+    </style>
+
+    <section id="products" className="products">
        <div style={{ textAlign: "center", padding: "40px 20px 20px" }}>
          <p style={{ color: "#a8705c", letterSpacing: "2px", margin: 0 }}>Fine Jewellery</p>
          <h2 style={{ fontSize: "42px", margin: "12px 0 8px" }}>Our <em>Collections</em></h2>
@@ -441,9 +500,15 @@ const byCategory = useMemo(() => {
          />
        )}
 
-    {zoomProduct && <ImageZoomModal product={zoomProduct} onClose={() => setZoomProduct(null)} />}
-     </section>
-   );
+        {zoomProduct && (
+      <ImageZoomModal
+        product={zoomProduct}
+        onClose={() => setZoomProduct(null)}
+      />
+    )}
+    </section>
+  </>
+);
 
 }
  
