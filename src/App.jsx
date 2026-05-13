@@ -8,18 +8,19 @@ import Success from "./pages/Success";
 import Orders from "./pages/Orders";
 import AdminOrders from "./pages/AdminOrders";
 import AdminLogin from "./pages/AdminLogin";
+import ProductDetail from "./pages/ProductDetail";
 import CartBar from "./components/CartBar";
 
 function Shell() {
   const location = useLocation();
-const isAdmin = location.pathname.startsWith("/admin");
+  const isAdmin = location.pathname.startsWith("/admin");
 
-const isAuthPage =
-  location.pathname === "/login" ||
-  location.pathname === "/reset-password";
+  const isAuthPage =
+    location.pathname === "/login" ||
+    location.pathname === "/reset-password";
+
   return (
     <>
-      
       {!isAdmin && !isAuthPage && <Navbar />}
 
       <Routes>
@@ -29,14 +30,13 @@ const isAuthPage =
         <Route path="/cart" element={<Cart />} />
         <Route path="/success" element={<Success />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
 
         <Route path="/admin/xk9q2" element={<AdminLogin />} />
         <Route path="/admin/orders" element={<AdminOrders />} />
         <Route path="/reset-password" element={<Login />} />
       </Routes>
 
-      {/* 🔥 ALWAYS SHOW */}
-      
       {!isAdmin && !isAuthPage && <CartBar />}
     </>
   );
