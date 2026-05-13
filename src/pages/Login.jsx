@@ -54,8 +54,11 @@ useEffect(() => {
       return;
     }
 
-    addToast("Welcome back!", "success");
-    navigate("/");
+   addToast("Welcome back!", "success");
+
+const redirectTo = location.state?.redirectTo || "/";
+
+navigate(redirectTo, { replace: true });
   };
 
   // 📧 FORGOT PASSWORD

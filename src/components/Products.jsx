@@ -361,8 +361,17 @@ const loadStorefront = async () => {
    };
  
    const addToCart = async (product, qty = 1) => {
-     if (!user) { addToast("Please sign in to add items", "error"); navigate("/login"); return; }
-     if (product.stock === 0) { addToast("Out of stock", "error"); return; }
+if (!user) {
+  addToast("Please sign in to continue", "error");
+
+  navigate("/login", {
+    state: {
+      redirectTo: window.location.pathname,
+    },
+  });
+
+  return;
+}     if (product.stock === 0) { addToast("Out of stock", "error"); return; }
  
      setAddingId(product.id);
  

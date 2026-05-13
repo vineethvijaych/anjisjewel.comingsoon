@@ -253,11 +253,17 @@ export default function ProductDetail() {
   const addToCart = async () => {
     if (!product) return;
 
-    if (!user) {
-      addToast("Please sign in to add items", "error");
-      navigate("/login");
-      return;
-    }
+  if (!user) {
+  addToast("Please sign in to continue", "error");
+
+  navigate("/login", {
+    state: {
+      redirectTo: window.location.pathname,
+    },
+  });
+
+  return;
+}
 
     if (product.stock === 0) {
       addToast("Out of stock", "error");
