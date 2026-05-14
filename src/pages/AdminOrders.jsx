@@ -81,18 +81,11 @@ function ProductForm({ initial, onSave, onCancel, categories = [] }) {
         const { error: uploadError } = await supabase.storage.from('product-images').upload(path, imgFile);
         if (uploadError) throw uploadError;
 
-const { data } = supabase.storage
+const { data: publicUrlData } = supabase.storage
   .from("product-images")
-  .getPublicUrl(path, {
-    transform: {
-      width: 600,
-      height: 600,
-      resize: "contain",
-      quality: 70,
-    },
-  });
+  .getPublicUrl(path);
 
-imageUrl = data.publicUrl;        imageUrl = publicUrl;
+imageUrl = publicUrlData.publicUrl;
       } catch (err) {
         setError("Image upload failed. Please try again.");
         setSaving(false);
