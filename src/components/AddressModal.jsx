@@ -4,9 +4,11 @@ import { useCart } from "../context/CartContext";
 
 export default function AddressModal({ onConfirm, onClose }) {
   const { user } = useCart();
+
   const [saved, setSaved] = useState([]);
   const [mode, setMode] = useState("saved");
   const [selected, setSelected] = useState(null);
+
   const [form, setForm] = useState({
     full_name: "",
     phone: "",
@@ -16,25 +18,41 @@ export default function AddressModal({ onConfirm, onClose }) {
     state: "",
     pincode: "",
   });
+
   const [err, setErr] = useState("");
 
-const isMobile = window.innerWidth < 768;
-const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const isMobile = window.innerWidth < 768;
+
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState(
+    window.innerHeight
+  );
+
   useEffect(() => {
     loadAddresses();
   }, []);
 
   useEffect(() => {
-  const handleResize = () => {
-    setViewportHeight(window.innerHeight);
-  };
+    const initialHeight = window.innerHeight;
 
-  window.addEventListener("resize", handleResize);
+    const handleResize = () => {
+      const currentHeight = window.innerHeight;
 
-  return () => {
-    window.removeEventListener("resize", handleResize);
-  };
-}, []);
+      setViewportHeight(currentHeight);
+
+      if (initialHeight - currentHeight > 150) {
+        setKeyboardOpen(true);
+      } else {
+        setKeyboardOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const loadAddresses = async () => {
     const { data } = await supabase
@@ -53,17 +71,31 @@ const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
     }
   };
 
-  const set = (field, val) => setForm((p) => ({ ...p, [field]: val }));
+  const set = (field, val) =>
+    setForm((p) => ({ ...p, [field]: val }));
 
   const validate = () => {
-    if (!form.full_name.trim()) return "Full name required";
+    if (!form.full_name.trim())
+      return "Full name required";
+
     if (!form.phone.trim() || form.phone.length < 10)
       return "Valid 10-digit phone required";
-    if (!form.line1.trim()) return "Address line 1 required";
-    if (!form.city.trim()) return "City required";
-    if (!form.state.trim()) return "State required";
-    if (!form.pincode.trim() || form.pincode.length < 6)
+
+    if (!form.line1.trim())
+      return "Address line 1 required";
+
+    if (!form.city.trim())
+      return "City required";
+
+    if (!form.state.trim())
+      return "State required";
+
+    if (
+      !form.pincode.trim() ||
+      form.pincode.length < 6
+    )
       return "Valid 6-digit pincode required";
+
     return null;
   };
 
@@ -74,6 +106,7 @@ const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
     }
 
     const e = validate();
+
     if (e) {
       setErr(e);
       return;
@@ -97,16 +130,26 @@ const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
     onConfirm(data);
   };
 
-  // 🔥 FIXED STYLES
+  const scrollIntoView = (e) => {
+    setTimeout(() => {
+      e.target.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 300);
+  };
+
   const inputStyle = {
     width: "100%",
     padding: "12px",
     background: "#fff",
     border: "1px solid #ccc",
     color: "#111",
-fontSize: 16,    borderRadius: "6px",
+    fontSize: 16,
+    borderRadius: "6px",
     marginBottom: 16,
     outline: "none",
+    boxSizing: "border-box",
   };
 
   const labelStyle = {
@@ -116,43 +159,44 @@ fontSize: 16,    borderRadius: "6px",
     color: "#444",
     marginBottom: 6,
   };
-  const scrollIntoView = (e) => {
-  setTimeout(() => {
-    e.target.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-  }, 250);
-};
 
   return (
     <div
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onClick={(e) =>
+        e.target === e.currentTarget && onClose()
+      }
       style={{
         position: "fixed",
         inset: 0,
         background: "rgba(0,0,0,0.5)",
         display: "flex",
         alignItems: isMobile ? "flex-start" : "center",
-justifyContent: "center",
-padding: isMobile ? "0" : "20px",
-zIndex: 2000,
-overflowX: "hidden",
-overflowY: "auto",
+        justifyContent: "center",
+        padding: isMobile ? "0" : "20px",
+        zIndex: 2000,
+        overflowY: "auto",
+        overflowX: "hidden",
       }}
     >
       <div
         style={{
           width: "100%",
           maxWidth: "600px",
-height: isMobile ? `${viewportHeight}px` : "auto",          background: "#f9f9f9",
+          height: isMobile
+            ? `${viewportHeight}px`
+            : "auto",
+          background: "#f9f9f9",
           borderRadius: isMobile ? "0" : "12px",
           overflowY: "auto",
+          overflowX: "hidden",
           padding: "20px",
           boxSizing: "border-box",
-overflowX: "hidden",
-paddingBottom: isMobile ? "120px" : "20px",
-WebkitOverflowScrolling: "touch",
+          WebkitOverflowScrolling: "touch",
+          paddingBottom: keyboardOpen
+            ? "260px"
+            : "20px",
+          transition:
+            "padding-bottom 0.25s ease",
         }}
       >
         {/* HEADER */}
@@ -163,14 +207,22 @@ WebkitOverflowScrolling: "touch",
             marginBottom: "20px",
           }}
         >
-          <h2 style={{ margin: 0 }}>Shipping Address</h2>
+          <h2 style={{ margin: 0 }}>
+            Shipping Address
+          </h2>
+
           <button onClick={onClose}>✕</button>
         </div>
 
         {/* SAVED ADDRESSES */}
         {saved.length > 0 && (
           <>
-            <p style={{ marginBottom: 10, fontWeight: 600 }}>
+            <p
+              style={{
+                marginBottom: 10,
+                fontWeight: 600,
+              }}
+            >
               Saved Addresses
             </p>
 
@@ -187,14 +239,28 @@ WebkitOverflowScrolling: "touch",
                   marginBottom: "10px",
                   cursor: "pointer",
                   background:
-                    selected?.id === addr.id ? "#e6f0ff" : "#fff",
+                    selected?.id === addr.id
+                      ? "#e6f0ff"
+                      : "#fff",
                 }}
               >
                 <p style={{ margin: 0 }}>
-                  <strong>{addr.full_name}</strong> · {addr.phone}
+                  <strong>
+                    {addr.full_name}
+                  </strong>{" "}
+                  · {addr.phone}
                 </p>
-                <p style={{ margin: 0, fontSize: 13, color: "#555" }}>
-                  {addr.line1}, {addr.city}, {addr.state} — {addr.pincode}
+
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 13,
+                    color: "#555",
+                  }}
+                >
+                  {addr.line1}, {addr.city},{" "}
+                  {addr.state} —{" "}
+                  {addr.pincode}
                 </p>
               </div>
             ))}
@@ -218,27 +284,42 @@ WebkitOverflowScrolling: "touch",
         {/* NEW ADDRESS FORM */}
         {mode === "new" && (
           <>
-            <p style={{ fontWeight: 600 }}>New Address</p>
+            <p style={{ fontWeight: 600 }}>
+              New Address
+            </p>
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                gridTemplateColumns: isMobile
+                  ? "1fr"
+                  : "1fr 1fr",
                 gap: "10px",
               }}
             >
               <div>
-                <label style={labelStyle}>Full Name</label>
+                <label style={labelStyle}>
+                  Full Name
+                </label>
+
                 <input
                   style={inputStyle}
                   value={form.full_name}
                   onFocus={scrollIntoView}
-                  onChange={(e) => set("full_name", e.target.value)}
+                  onChange={(e) =>
+                    set(
+                      "full_name",
+                      e.target.value
+                    )
+                  }
                 />
               </div>
 
               <div>
-                <label style={labelStyle}>Phone</label>
+                <label style={labelStyle}>
+                  Phone
+                </label>
+
                 <input
                   style={inputStyle}
                   value={form.phone}
@@ -246,58 +327,85 @@ WebkitOverflowScrolling: "touch",
                   onChange={(e) =>
                     set(
                       "phone",
-                      e.target.value.replace(/\D/g, "").slice(0, 10)
+                      e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 10)
                     )
                   }
                 />
               </div>
             </div>
 
-            <label style={labelStyle}>Address Line 1</label>
+            <label style={labelStyle}>
+              Address Line 1
+            </label>
+
             <input
               style={inputStyle}
               value={form.line1}
               onFocus={scrollIntoView}
-              onChange={(e) => set("line1", e.target.value)}
+              onChange={(e) =>
+                set("line1", e.target.value)
+              }
             />
 
-            <label style={labelStyle}>Address Line 2</label>
+            <label style={labelStyle}>
+              Address Line 2
+            </label>
+
             <input
               style={inputStyle}
               value={form.line2}
               onFocus={scrollIntoView}
-              onChange={(e) => set("line2", e.target.value)}
+              onChange={(e) =>
+                set("line2", e.target.value)
+              }
             />
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr",
+                gridTemplateColumns: isMobile
+                  ? "1fr"
+                  : "1fr 1fr 1fr",
                 gap: "10px",
               }}
             >
               <div>
-                <label style={labelStyle}>City</label>
+                <label style={labelStyle}>
+                  City
+                </label>
+
                 <input
                   style={inputStyle}
                   value={form.city}
                   onFocus={scrollIntoView}
-                  onChange={(e) => set("city", e.target.value)}
+                  onChange={(e) =>
+                    set("city", e.target.value)
+                  }
                 />
               </div>
 
               <div>
-                <label style={labelStyle}>State</label>
+                <label style={labelStyle}>
+                  State
+                </label>
+
                 <input
                   style={inputStyle}
                   value={form.state}
                   onFocus={scrollIntoView}
-                  onChange={(e) => set("state", e.target.value)}
+                  onChange={(e) =>
+                    set("state", e.target.value)
+                  }
                 />
               </div>
 
               <div>
-                <label style={labelStyle}>Pincode</label>
+                <label style={labelStyle}>
+                  Pincode
+                </label>
+
                 <input
                   style={inputStyle}
                   value={form.pincode}
@@ -305,7 +413,9 @@ WebkitOverflowScrolling: "touch",
                   onChange={(e) =>
                     set(
                       "pincode",
-                      e.target.value.replace(/\D/g, "").slice(0, 6)
+                      e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 6)
                     )
                   }
                 />
@@ -316,7 +426,14 @@ WebkitOverflowScrolling: "touch",
 
         {/* ERROR */}
         {err && (
-          <div style={{ color: "red", marginTop: 10 }}>{err}</div>
+          <div
+            style={{
+              color: "red",
+              marginTop: 10,
+            }}
+          >
+            {err}
+          </div>
         )}
 
         {/* BUTTON */}
@@ -324,15 +441,15 @@ WebkitOverflowScrolling: "touch",
           onClick={handleConfirm}
           style={{
             marginTop: 20,
-width: "100%",
-position: isMobile ? "sticky" : "static",
-bottom: 0,
-left: 0,
+            width: "100%",
             padding: "14px",
             background: "#0d2818",
             color: "#fff",
             border: "none",
             cursor: "pointer",
+            borderRadius: "8px",
+            fontSize: "15px",
+            fontWeight: "600",
           }}
         >
           Continue to Payment →
