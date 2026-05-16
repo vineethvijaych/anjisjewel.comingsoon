@@ -18,11 +18,23 @@ export default function AddressModal({ onConfirm, onClose }) {
   });
   const [err, setErr] = useState("");
 
-  const isMobile = window.innerWidth < 768;
-
+const isMobile = window.innerWidth < 768;
+const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
   useEffect(() => {
     loadAddresses();
   }, []);
+
+  useEffect(() => {
+  const handleResize = () => {
+    setViewportHeight(window.innerHeight);
+  };
+
+  window.addEventListener("resize", handleResize);
+
+  return () => {
+    window.removeEventListener("resize", handleResize);
+  };
+}, []);
 
   const loadAddresses = async () => {
     const { data } = await supabase
@@ -92,8 +104,7 @@ export default function AddressModal({ onConfirm, onClose }) {
     background: "#fff",
     border: "1px solid #ccc",
     color: "#111",
-    fontSize: 14,
-    borderRadius: "6px",
+fontSize: 16,    borderRadius: "6px",
     marginBottom: 16,
     outline: "none",
   };
@@ -105,6 +116,14 @@ export default function AddressModal({ onConfirm, onClose }) {
     color: "#444",
     marginBottom: 6,
   };
+  const scrollIntoView = (e) => {
+  setTimeout(() => {
+    e.target.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, 250);
+};
 
   return (
     <div
@@ -114,21 +133,26 @@ export default function AddressModal({ onConfirm, onClose }) {
         inset: 0,
         background: "rgba(0,0,0,0.5)",
         display: "flex",
-        alignItems: isMobile ? "stretch" : "center",
-        justifyContent: "center",
-        padding: isMobile ? "0" : "20px",
-        zIndex: 2000,
+        alignItems: isMobile ? "flex-start" : "center",
+justifyContent: "center",
+padding: isMobile ? "0" : "20px",
+zIndex: 2000,
+overflowX: "hidden",
+overflowY: "auto",
       }}
     >
       <div
         style={{
           width: "100%",
           maxWidth: "600px",
-          height: isMobile ? "100vh" : "auto",
-          background: "#f9f9f9",
+height: isMobile ? `${viewportHeight}px` : "auto",          background: "#f9f9f9",
           borderRadius: isMobile ? "0" : "12px",
           overflowY: "auto",
           padding: "20px",
+          boxSizing: "border-box",
+overflowX: "hidden",
+paddingBottom: isMobile ? "120px" : "20px",
+WebkitOverflowScrolling: "touch",
         }}
       >
         {/* HEADER */}
@@ -208,6 +232,7 @@ export default function AddressModal({ onConfirm, onClose }) {
                 <input
                   style={inputStyle}
                   value={form.full_name}
+                  onFocus={scrollIntoView}
                   onChange={(e) => set("full_name", e.target.value)}
                 />
               </div>
@@ -217,6 +242,7 @@ export default function AddressModal({ onConfirm, onClose }) {
                 <input
                   style={inputStyle}
                   value={form.phone}
+                  onFocus={scrollIntoView}
                   onChange={(e) =>
                     set(
                       "phone",
@@ -231,6 +257,7 @@ export default function AddressModal({ onConfirm, onClose }) {
             <input
               style={inputStyle}
               value={form.line1}
+              onFocus={scrollIntoView}
               onChange={(e) => set("line1", e.target.value)}
             />
 
@@ -238,6 +265,7 @@ export default function AddressModal({ onConfirm, onClose }) {
             <input
               style={inputStyle}
               value={form.line2}
+              onFocus={scrollIntoView}
               onChange={(e) => set("line2", e.target.value)}
             />
 
@@ -253,6 +281,7 @@ export default function AddressModal({ onConfirm, onClose }) {
                 <input
                   style={inputStyle}
                   value={form.city}
+                  onFocus={scrollIntoView}
                   onChange={(e) => set("city", e.target.value)}
                 />
               </div>
@@ -262,6 +291,7 @@ export default function AddressModal({ onConfirm, onClose }) {
                 <input
                   style={inputStyle}
                   value={form.state}
+                  onFocus={scrollIntoView}
                   onChange={(e) => set("state", e.target.value)}
                 />
               </div>
@@ -271,6 +301,7 @@ export default function AddressModal({ onConfirm, onClose }) {
                 <input
                   style={inputStyle}
                   value={form.pincode}
+                  onFocus={scrollIntoView}
                   onChange={(e) =>
                     set(
                       "pincode",
@@ -293,7 +324,10 @@ export default function AddressModal({ onConfirm, onClose }) {
           onClick={handleConfirm}
           style={{
             marginTop: 20,
-            width: "100%",
+width: "100%",
+position: isMobile ? "sticky" : "static",
+bottom: 0,
+left: 0,
             padding: "14px",
             background: "#0d2818",
             color: "#fff",

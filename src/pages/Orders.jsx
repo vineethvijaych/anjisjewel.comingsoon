@@ -61,7 +61,7 @@ export default function Orders() {
     <div className="orders-page">
       <div className="orders-header">
         <p className="section-label">Purchase History</p>
-        <h1 className="section-title">My <em>Orders</em></h1>
+        <h1 className="section-title  "><em>My </em><em>Orders</em></h1>
       </div>
 
       {orders.length === 0 ? (

@@ -173,6 +173,7 @@ const [showOrderModal, setShowOrderModal] = useState(false);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [orderSearch, setOrderSearch] = useState("");
   const [catFilter, setCatFilter] = useState("All");
   const [showForm, setShowForm] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
@@ -401,8 +402,19 @@ const [showOrderModal, setShowOrderModal] = useState(false);
   };
 
   const filteredProducts = catFilter === "All" ? products : products.filter(p => p.category === catFilter);
-  const filteredOrders = filter === "all" ? orders : orders.filter(o => o.status === filter);
+const filteredOrders = orders.filter(order => {
+  const statusMatch =
+    filter === "all" || order.status === filter;
 
+  const searchMatch =
+    !orderSearch ||
+    order.order_id
+      ?.toString()
+      .toLowerCase()
+      .includes(orderSearch.toLowerCase());
+
+  return statusMatch && searchMatch;
+});
   if (loading) return <div style={{ padding: "100px", textAlign: "center" }}>Loading Admin Panel...</div>;
 
   return (
@@ -627,6 +639,21 @@ const [showOrderModal, setShowOrderModal] = useState(false);
                 </button>
               ))}
             </div>
+            <input
+  type="text"
+  placeholder="Search by Order ID..."
+  value={orderSearch}
+  onChange={(e) => setOrderSearch(e.target.value)}
+  style={{
+    padding: "10px 14px",
+    borderRadius: "10px",
+    border: "1px solid #d1d5db",
+    width: "260px",
+    outline: "none",
+    fontSize: "14px",
+    marginLeft: "16px",
+  }}
+/>
             <button onClick={exportOrdersToExcel} style={{ padding: "10px 24px", background: "#10b981", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "600" }}>
               Export to Excel
             </button>
