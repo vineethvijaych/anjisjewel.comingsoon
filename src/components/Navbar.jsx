@@ -32,7 +32,7 @@ export default function Navbar() {
       <header className={`navbar ${scrolled ? "scrolled" : ""}`}>
         <div className="nav-container">
           <Link to="/" className="logo" onClick={handleNav}>
-            <span>AnjisJewel</span>
+            AnjisJewel
           </Link>
 
           {/* Desktop nav */}
