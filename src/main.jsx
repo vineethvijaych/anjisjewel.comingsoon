@@ -4,8 +4,16 @@ import App from "./App";
 import "./styles.css";
 import { CartProvider } from "./context/CartContext";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <CartProvider>
-    <App />
-  </CartProvider>
+import { initGA } from "./analytics";
+
+initGA();
+
+ReactDOM.createRoot(
+  document.getElementById("root")
+).render(
+  <React.StrictMode>
+    <CartProvider>
+      <App />
+    </CartProvider>
+  </React.StrictMode>
 );
