@@ -19,7 +19,7 @@ import AdminLogin from "./pages/AdminLogin";
 import ProductDetail from "./pages/ProductDetail";
 import CartBar from "./components/CartBar";
 
-import MaintenanceOverlay from "./components/MaintenanceOverlay";
+// import MaintenanceOverlay from "./components/MaintenanceOverlay";
 
 import { trackPage } from "./analytics";
 
@@ -52,15 +52,11 @@ function Shell() {
       <AnalyticsTracker />
 
       {/* WEBSITE CONTENT */}
-      <div
-        style={{
-          filter:
-            "blur(10px) brightness(.6)",
-          pointerEvents: "none",
-          userSelect: "none",
-          minHeight: "100vh",
-        }}
-      >
+     <div
+  style={{
+    minHeight: "100vh",
+  }}
+>
         {!isAdmin &&
           !isAuthPage && (
             <Navbar />
@@ -131,7 +127,7 @@ function Shell() {
       </div>
 
       {/* MAINTENANCE OVERLAY */}
-      <MaintenanceOverlay />
+      {/* <MaintenanceOverlay /> */}
     </>
   );
 }

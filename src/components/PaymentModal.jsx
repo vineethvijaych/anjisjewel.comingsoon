@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const RAZORPAY_KEY_ID = "rzp_live_SlbxVdKtuhuoO5";
 const SUPABASE_URL =
-  "https://gbhedrawnqyqmlerisfd.supabase.co";
+  "https://dykwmbvftulelqfnvvgt.supabase.co";
 
 function loadRazorpayScript() {
   return new Promise(resolve => {
