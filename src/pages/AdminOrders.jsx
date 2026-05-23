@@ -349,12 +349,40 @@ const [showOrderModal, setShowOrderModal] = useState(false);
   };
 
   const deleteProduct = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
-    setDeleting(id);
-    await supabase.from("products").delete().eq("id", id);
-    loadProducts();
-    setDeleting(null);
-  };
+  if (
+    !window.confirm(
+      "Delete this product?"
+    )
+  )
+    return;
+
+  setDeleting(id);
+
+  try {
+    const { error } =
+      await supabase
+        .from(
+          "products"
+        )
+        .delete()
+        .eq("id", id);
+
+    if (error)
+      throw error;
+
+    await loadProducts();
+
+    alert(
+      "Deleted successfully"
+    );
+  } catch (e) {
+    console.log(e);
+
+    alert(e.message);
+  }
+
+  setDeleting(null);
+};
 
   const saveCategory = async () => {
     if (!categoryDraft.name.trim()) return setCategoryError("Category name is required");

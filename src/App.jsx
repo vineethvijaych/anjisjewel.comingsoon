@@ -19,24 +19,22 @@ import AdminLogin from "./pages/AdminLogin";
 import ProductDetail from "./pages/ProductDetail";
 import CartBar from "./components/CartBar";
 
+import MaintenanceOverlay from "./components/MaintenanceOverlay";
+
 import { trackPage } from "./analytics";
 
 function AnalyticsTracker() {
-  const location =
-    useLocation();
+  const location = useLocation();
 
   useEffect(() => {
-    trackPage(
-      location.pathname
-    );
+    trackPage(location.pathname);
   }, [location]);
 
   return null;
 }
 
 function Shell() {
-  const location =
-    useLocation();
+  const location = useLocation();
 
   const isAdmin =
     location.pathname.startsWith(
@@ -53,73 +51,87 @@ function Shell() {
     <>
       <AnalyticsTracker />
 
-      {!isAdmin &&
-        !isAuthPage && (
-          <Navbar />
-        )}
+      {/* WEBSITE CONTENT */}
+      <div
+        style={{
+          filter:
+            "blur(10px) brightness(.6)",
+          pointerEvents: "none",
+          userSelect: "none",
+          minHeight: "100vh",
+        }}
+      >
+        {!isAdmin &&
+          !isAuthPage && (
+            <Navbar />
+          )}
 
-      <Routes>
-        <Route
-          path="/"
-          element={<Home />}
-        />
+        <Routes>
+          <Route
+            path="/"
+            element={<Home />}
+          />
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
 
-        <Route
-          path="/register"
-          element={<Register />}
-        />
+          <Route
+            path="/register"
+            element={<Register />}
+          />
 
-        <Route
-          path="/cart"
-          element={<Cart />}
-        />
+          <Route
+            path="/cart"
+            element={<Cart />}
+          />
 
-        <Route
-          path="/success"
-          element={<Success />}
-        />
+          <Route
+            path="/success"
+            element={<Success />}
+          />
 
-        <Route
-          path="/orders"
-          element={<Orders />}
-        />
+          <Route
+            path="/orders"
+            element={<Orders />}
+          />
 
-        <Route
-          path="/product/:id"
-          element={
-            <ProductDetail />
-          }
-        />
+          <Route
+            path="/product/:id"
+            element={
+              <ProductDetail />
+            }
+          />
 
-        <Route
-          path="/admin/xk9q2"
-          element={
-            <AdminLogin />
-          }
-        />
+          <Route
+            path="/admin/xk9q2"
+            element={
+              <AdminLogin />
+            }
+          />
 
-        <Route
-          path="/admin/orders"
-          element={
-            <AdminOrders />
-          }
-        />
+          <Route
+            path="/admin/orders"
+            element={
+              <AdminOrders />
+            }
+          />
 
-        <Route
-          path="/reset-password"
-          element={<Login />}
-        />
-      </Routes>
+          <Route
+            path="/reset-password"
+            element={<Login />}
+          />
+        </Routes>
 
-      {!isAdmin &&
-        !isAuthPage && (
-          <CartBar />
-        )}
+        {!isAdmin &&
+          !isAuthPage && (
+            <CartBar />
+          )}
+      </div>
+
+      {/* MAINTENANCE OVERLAY */}
+      <MaintenanceOverlay />
     </>
   );
 }
