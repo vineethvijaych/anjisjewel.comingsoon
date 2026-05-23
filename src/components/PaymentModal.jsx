@@ -3,7 +3,7 @@ import { supabase } from "../supabase";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 
-const RAZORPAY_KEY_ID = "rzp_live_SlbxVdKtuhuoO5";
+const RAZORPAY_KEY_ID = "rzp_live_Ssn12PIL6Gvb04";
 const SUPABASE_URL =
   "https://dykwmbvftulelqfnvvgt.supabase.co";
 
