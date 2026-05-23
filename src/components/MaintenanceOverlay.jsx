@@ -9,7 +9,7 @@ export default function MaintenanceOverlay() {
           ANJIS JEWEL
         </div>
 
-        <h1>Under Maintenance</h1>
+        <h1>Under <br /> Maintenance</h1>
 
         <p>
           We are currently upgrading the website experience.
