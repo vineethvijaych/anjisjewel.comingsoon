@@ -54,10 +54,10 @@ function Shell() {
       {/* WEBSITE CONTENT */}
       <div
         style={{
-          filter:
-            "blur(10px) brightness(.6)",
-          pointerEvents: "none",
-          userSelect: "none",
+          // filter:
+          //   "blur(10px) brightness(.6)",
+          // pointerEvents: "none",
+          // userSelect: "none",
           minHeight: "100vh",
         }}
       >
@@ -131,7 +131,7 @@ function Shell() {
       </div>
 
       {/* MAINTENANCE OVERLAY */}
-      <MaintenanceOverlay />
+      {/* <MaintenanceOverlay /> */}
     </>
   );
 }
