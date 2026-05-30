@@ -141,8 +141,36 @@ export default function AddressModal({
 
     return null;
   };
+const handleDelete = async (id) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this address?"
+  );
 
+  if (!confirmed) return;
+
+  try {
+    const { error } = await supabase
+      .from("addresses")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      setErr(error.message);
+      return;
+    }
+
+    await loadAddresses();
+
+    if (selected?.id === id) {
+      setSelected(null);
+    }
+  } catch (err) {
+    console.error(err);
+    setErr("Failed to delete address");
+  }
+};
   const handleConfirm = async () => {
+   
     console.log(
       "CONTINUE CLICKED"
     );
@@ -179,7 +207,41 @@ export default function AddressModal({
       }
 
       const validationError =
-        validate();
+  validate();
+
+
+
+if (
+  mode === "edit" &&
+  selected
+) {
+  const { data, error } =
+    await supabase
+      .from("addresses")
+      .update({
+        ...form,
+      })
+      .eq(
+        "id",
+        selected.id
+      )
+      .select()
+      .single();
+
+  if (error) {
+    setErr(error.message);
+    return;
+  }
+
+  if (
+    typeof onConfirm ===
+    "function"
+  ) {
+    onConfirm(data);
+  }
+
+  return;
+}
 
       if (validationError) {
         setErr(validationError);
@@ -330,59 +392,124 @@ export default function AddressModal({
             </p>
 
             {saved.map((addr) => (
-              <div
-                key={addr.id}
-                onClick={() => {
-                  setSelected(
-                    addr
-                  );
+  <div
+    key={addr.id}
+    onClick={() => {
+      setSelected(addr);
+      setMode("saved");
+    }}
+    style={{
+      padding: 12,
+      border: "1px solid #ddd",
+      marginBottom: 10,
+      cursor: "pointer",
+      background:
+        selected?.id === addr.id
+          ? "#e6f0ff"
+          : "#fff",
+    }}
+  >
+    <strong>
+      {addr.full_name}
+    </strong>
 
-                  setMode(
-                    "saved"
-                  );
-                }}
-                style={{
-                  padding: 12,
-                  border:
-                    "1px solid #ddd",
-                  marginBottom: 10,
-                  cursor: "pointer",
-                  background:
-                    selected?.id ===
-                    addr.id
-                      ? "#e6f0ff"
-                      : "#fff",
-                }}
-              >
-                <strong>
-                  {
-                    addr.full_name
-                  }
-                </strong>
+    <br />
 
-                <br />
+    {addr.line1},{" "}
+    {addr.city},{" "}
+    {addr.state}
 
-                {addr.line1},{" "}
-                {addr.city},{" "}
-                {addr.state}
-              </div>
-            ))}
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        marginTop: 10,
+      }}
+    >
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+
+          setForm({
+            full_name:
+              addr.full_name || "",
+            phone:
+              addr.phone || "",
+            line1:
+              addr.line1 || "",
+            line2:
+              addr.line2 || "",
+            city:
+              addr.city || "",
+            state:
+              addr.state || "",
+            pincode:
+              addr.pincode || "",
+          });
+
+          setSelected(addr);
+          setMode("edit");
+        }}
+        style={{
+          padding: "6px 12px",
+          border: "1px solid #ccc",
+          background: "#fff",
+          cursor: "pointer",
+          borderRadius: "4px",
+        }}
+      >
+        Edit
+      </button>
+
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+
+          handleDelete(
+            addr.id
+          );
+        }}
+        style={{
+          padding: "6px 12px",
+          border: "none",
+          background:
+            "#dc2626",
+          color: "#fff",
+          cursor: "pointer",
+          borderRadius: "4px",
+        }}
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+))}
 
             <button
               onClick={() => {
-                setMode("new");
+  setForm({
+    full_name: "",
+    phone: "",
+    line1: "",
+    line2: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
 
-                setSelected(
-                  null
-                );
-              }}
+  setMode("new");
+  setSelected(null);
+}}
             >
               + Add New Address
             </button>
           </>
         )}
 
-        {mode === "new" && (
+        {(mode === "new" ||
+  mode === "edit") && (
           <>
             <input
               style={inputStyle}
@@ -454,20 +581,56 @@ export default function AddressModal({
               }
             />
 
-            <input
-              style={inputStyle}
-              placeholder="State"
-              value={form.state}
-              onFocus={
-                scrollIntoView
-              }
-              onChange={(e) =>
-                set(
-                  "state",
-                  e.target.value
-                )
-              }
-            />
+            <select
+  style={inputStyle}
+  value={form.state}
+  onFocus={scrollIntoView}
+  onChange={(e) =>
+    set("state", e.target.value)
+  }
+>
+  <option value="">
+    Select State / UT
+  </option>
+
+  <option value="Andhra Pradesh">Andhra Pradesh</option>
+  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+  <option value="Assam">Assam</option>
+  <option value="Bihar">Bihar</option>
+  <option value="Chhattisgarh">Chhattisgarh</option>
+  <option value="Goa">Goa</option>
+  <option value="Gujarat">Gujarat</option>
+  <option value="Haryana">Haryana</option>
+  <option value="Himachal Pradesh">Himachal Pradesh</option>
+  <option value="Jharkhand">Jharkhand</option>
+  <option value="Karnataka">Karnataka</option>
+  <option value="Kerala">Kerala</option>
+  <option value="Madhya Pradesh">Madhya Pradesh</option>
+  <option value="Maharashtra">Maharashtra</option>
+  <option value="Manipur">Manipur</option>
+  <option value="Meghalaya">Meghalaya</option>
+  <option value="Mizoram">Mizoram</option>
+  <option value="Nagaland">Nagaland</option>
+  <option value="Odisha">Odisha</option>
+  <option value="Punjab">Punjab</option>
+  <option value="Rajasthan">Rajasthan</option>
+  <option value="Sikkim">Sikkim</option>
+  <option value="Tamil Nadu">Tamil Nadu</option>
+  <option value="Telangana">Telangana</option>
+  <option value="Tripura">Tripura</option>
+  <option value="Uttar Pradesh">Uttar Pradesh</option>
+  <option value="Uttarakhand">Uttarakhand</option>
+  <option value="West Bengal">West Bengal</option>
+
+  <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+  <option value="Chandigarh">Chandigarh</option>
+  <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+  <option value="Delhi">Delhi</option>
+  <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+  <option value="Ladakh">Ladakh</option>
+  <option value="Lakshadweep">Lakshadweep</option>
+  <option value="Puducherry">Puducherry</option>
+</select>
 
             <input
               style={inputStyle}

@@ -13,6 +13,7 @@ export default function Cart() {
   const [showAddress, setShowAddress] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [shippingInfo, setShippingInfo] = useState(null);
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
 
   const { user, fetchCartCount, addToast } = useCart();
 
@@ -82,16 +83,39 @@ export default function Cart() {
     );
   };
 
-  const subtotal = cart.reduce(
-    (sum, item) =>
-      sum +
-      Number(item.products?.price || 0) *
-      item.quantity,
-    0
-  );
+ const subtotal = cart.reduce(
+  (sum, item) =>
+    sum +
+    Number(item.products?.price || 0) *
+    item.quantity,
+  0
+);
 
-  // GST removed
-  const total = subtotal;
+const getDeliveryCharge = state => {
+  if (!state) return 100;
+
+  const southIndia = [
+    "Tamil Nadu",
+    "Karnataka",
+    "Andhra Pradesh",
+    "Telangana",
+    "Puducherry",
+  ];
+
+  if (state === "Kerala") {
+    return 0;
+  }
+
+  if (
+    southIndia.includes(state)
+  ) {
+    return 60;
+  }
+
+  return 100;
+};
+
+const total = subtotal + deliveryCharge;
 
   if (loading)
     return (
@@ -279,17 +303,17 @@ export default function Cart() {
             </div>
 
             <div className="summary-row">
-              <span>Shipping</span>
+  <span>Shipping</span>
 
-              <span
-                style={{
-                  color:
-                    "var(--gold)",
-                }}
-              >
-                Complimentary
-              </span>
-            </div>
+  <span
+    style={{
+      color: "var(--gold)",
+      fontSize: "13px",
+    }}
+  >
+    Calculated at Checkout
+  </span>
+</div>
 
             <div className="summary-row total">
               <span>Total</span>
@@ -333,13 +357,20 @@ export default function Cart() {
 
       {showAddress && (
         <AddressModal
-          onConfirm={addr => {
-            setShippingInfo(addr);
+  onConfirm={addr => {
+    const charge =
+      getDeliveryCharge(
+        addr.state
+      );
 
-            setShowAddress(false);
+    setDeliveryCharge(charge);
 
-            setShowPayment(true);
-          }}
+    setShippingInfo(addr);
+
+    setShowAddress(false);
+
+    setShowPayment(true);
+  }}
           onClose={() =>
             setShowAddress(false)
           }
@@ -348,16 +379,15 @@ export default function Cart() {
 
       {showPayment && (
         <PaymentModal
-          cart={cart}
-          subtotal={subtotal}
-          total={total}
-          shippingInfo={
-            shippingInfo
-          }
-          onClose={() =>
-            setShowPayment(false)
-          }
-        />
+  cart={cart}
+  subtotal={subtotal}
+  total={total}
+  deliveryCharge={deliveryCharge}
+  shippingInfo={shippingInfo}
+  onClose={() =>
+    setShowPayment(false)
+  }
+/>
       )}
     </>
   );

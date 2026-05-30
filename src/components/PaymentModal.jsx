@@ -95,6 +95,7 @@ export default function PaymentModal({
   cart,
   subtotal,
   total,
+  deliveryCharge,
   shippingInfo,
   onClose,
 }) {
@@ -161,10 +162,13 @@ export default function PaymentModal({
               ),
 
             subtotal:
-              Number(subtotal),
+  Number(subtotal),
 
-            total:
-              Number(total),
+delivery_charge:
+  Number(deliveryCharge),
+
+total:
+  Number(total),
 
             payment_method:
               "razorpay",
@@ -511,20 +515,37 @@ export default function PaymentModal({
             )}
           </div>
 
-          <div className="modal-order-total">
-            <span>
-              Total Payable
-            </span>
+        <>
+  <div className="modal-order-total">
+    <span>Subtotal</span>
 
-            <span className="tot-amount">
-              ₹{" "}
-              {Number(
-                total
-              ).toLocaleString(
-                "en-IN"
-              )}
-            </span>
-          </div>
+    <span>
+      ₹ {Number(subtotal).toLocaleString("en-IN")}
+    </span>
+  </div>
+
+  <div className="modal-order-total">
+    <span>Shipping</span>
+
+    <span>
+      {deliveryCharge === 0
+        ? "FREE"
+        : `₹ ${deliveryCharge}`}
+    </span>
+  </div>
+
+  <div className="modal-order-total">
+    <span>Total Payable</span>
+
+    <span className="tot-amount">
+      ₹ {Number(total).toLocaleString("en-IN")}
+    </span>
+  </div>
+</>
+
+
+
+            
 
           <button
             className="pay-btn"
