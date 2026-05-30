@@ -107,6 +107,8 @@ export default function PaymentModal({
 
   const [step, setStep] =
     useState("");
+    const [processingOrder, setProcessingOrder] =
+  useState(false);
 
   const {
     user,
@@ -384,11 +386,12 @@ total:
                           );
 
                         setStep(
-                          "Confirming order..."
-                        );
+  "Confirming order..."
+);
 
-                        await saveOrder(
-                          {
+setProcessingOrder(true);
+
+await saveOrder({
                             orderId,
 
                             razorpayOrderId:
@@ -445,7 +448,73 @@ total:
         setStep("");
       }
     };
+if (processingOrder) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#fff",
+        zIndex: 999999,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        textAlign: "center",
+        padding: "20px",
+      }}
+    >
+      <div
+        style={{
+          width: "70px",
+          height: "70px",
+          border:
+            "4px solid #eee",
+          borderTop:
+            "4px solid #0d2818",
+          borderRadius: "50%",
+          animation:
+            "spin 1s linear infinite",
+        }}
+      />
 
+      <h2
+        style={{
+          marginTop: 25,
+          color: "#0d2818",
+        }}
+      >
+        Payment Successful
+      </h2>
+
+      <p
+        style={{
+          color: "#666",
+          marginTop: 10,
+          maxWidth: "280px",
+          lineHeight: 1.5,
+        }}
+      >
+        Please wait while we
+        confirm your order and
+        generate your order ID.
+      </p>
+
+      <style>
+        {`
+          @keyframes spin {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
+            }
+          }
+        `}
+      </style>
+    </div>
+  );
+}
   return (
     <div
       className="modal-backdrop"
