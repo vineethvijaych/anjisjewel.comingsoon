@@ -74,24 +74,39 @@ function ProductForm({ initial, onSave, onCancel, categories = [] }) {
     let imageUrl = form.image;
 
     if (imgFile) {
-      try {
-        const ext = imgFile.name.split(".").pop().toLowerCase();
-        const path = `products/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  try {
 
-        const { error: uploadError } = await supabase.storage.from('product-images').upload(path, imgFile);
-        if (uploadError) throw uploadError;
+    const formData = new FormData();
 
-const { data: publicUrlData } = supabase.storage
-  .from("product-images")
-  .getPublicUrl(path);
+    formData.append("image", imgFile);
 
-imageUrl = publicUrlData.publicUrl;
-      } catch (err) {
-        setError("Image upload failed. Please try again.");
-        setSaving(false);
-        return;
+    const response = await fetch(
+      "https://anjisjewel.com/api/upload.php",
+      {
+        method: "POST",
+        body: formData,
       }
+    );
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message);
     }
+
+    imageUrl = result.url;
+
+  } catch (err) {
+
+    console.error(err);
+
+    setError("Image upload failed. Please try again.");
+
+    setSaving(false);
+
+    return;
+  }
+}
 
     const payload = {
       ...form,
