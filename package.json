@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
+    "framer-motion": "^12.40.0",
     "lucide-react": "^1.14.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-ga4": "^3.0.1",
+    "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.13.1",
     "xlsx": "^0.18.5"
   },
