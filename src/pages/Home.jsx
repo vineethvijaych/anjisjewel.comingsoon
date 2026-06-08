@@ -149,7 +149,7 @@ export default function Home() {
         
         /* Lazy loading image styles */
         img {
-          opacity: 0;
+          opacity: 1;
           transition: opacity 0.3s ease;
         }
         
