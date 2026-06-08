@@ -508,7 +508,7 @@ export default function PaymentModal({
                       border: "2px solid rgba(0,0,0,0.2)",
                       borderTop: "2px solid #c9a07c",
                       borderRadius: "50%",
-                      animation: "buttonSpin 0.8s linear infinite",
+                      
                     }}
                   />
                   {step || "Processing..."}
