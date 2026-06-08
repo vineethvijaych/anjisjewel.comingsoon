@@ -38,8 +38,9 @@ function ProductImageZoom({ product, isMobile }) {
         style={{
           width: "100%",
           border: "none",
-          background: "var(--warm-white)",
-          borderRadius: isMobile ? 14 : 18,
+          background: "#f8f4ef",
+border: "1px solid rgba(13,40,24,0.08)",
+borderRadius: 0,
           overflow: "hidden",
           padding: isMobile ? 10 : 18,
           position: "relative",
@@ -57,7 +58,7 @@ function ProductImageZoom({ product, isMobile }) {
             width: "100%",
             maxHeight: isMobile ? 360 : 620,
             objectFit: "contain",
-            borderRadius: 12,
+            borderRadius: 0,
           }}
         />
 
@@ -119,7 +120,7 @@ function ProductImageZoom({ product, isMobile }) {
                 style={{
                   width: 44,
                   height: 44,
-                  borderRadius: 10,
+                  borderRadius: 0,
                   border: "1px solid rgba(255,255,255,0.28)",
                   background: "transparent",
                   color: "#fff",
@@ -421,7 +422,7 @@ export default function ProductDetail() {
               gridTemplateColumns: isMobile
                 ? "1fr"
                 : "minmax(320px, 1fr) minmax(340px, 480px)",
-              gap: isMobile ? 24 : 44,
+              gap: isMobile ? 32 : 72,
               alignItems: "start",
               marginTop: 28,
             }}
@@ -432,15 +433,16 @@ export default function ProductDetail() {
             />
 
             <section
-              style={{
-                background: "#fff",
-                borderRadius: 18,
-                padding: isMobile
-                  ? "22px 18px"
-                  : "34px 30px",
-                boxShadow: "var(--shadow-sm)",
-              }}
-            >
+  style={{
+    background: "#fff",
+    border: "1px solid rgba(13,40,24,0.08)",
+    borderRadius: 0,
+    padding: isMobile
+      ? "28px 22px"
+      : "42px 40px",
+    boxShadow: "none",
+  }}
+>
               <p
                 style={{
                   color: "var(--gold-dark)",
@@ -456,9 +458,9 @@ export default function ProductDetail() {
               <h1
                 style={{
                   fontFamily: "var(--font-display)",
-                  fontSize: isMobile
-                    ? "clamp(28px,8vw,38px)"
-                    : "clamp(36px,5vw,58px)",
+                 fontSize: isMobile
+  ? "clamp(34px,8vw,44px)"
+  : "clamp(48px,5vw,72px)",
                   fontWeight: 400,
                   lineHeight: 1.08,
                   marginBottom: 16,
@@ -734,7 +736,7 @@ export default function ProductDetail() {
             style={{
               flex: 1,
               minHeight: 52,
-              borderRadius: 12,
+              borderRadius: 0,
               background: "var(--forest)",
               color: "#fff",
               fontWeight: 700,

@@ -21,59 +21,106 @@ export default function CartBar() {
         bottom: 0,
         left: 0,
         right: 0,
-        background: "#0d2818",
-        borderTop: "1px solid rgba(201,144,122,0.2)",
-        padding: "12px 16px",
-        zIndex: 9999, // 🔥 ABOVE MODAL
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        boxShadow: "0 -8px 30px rgba(0,0,0,0.3)",
+        background: "#08120c", // Deep Emerald
+        borderTop: "1px solid rgba(201, 160, 124, 0.25)",
+        padding: "16px 20px",
+        zIndex: 9999,
+        boxShadow: "0 -10px 40px rgba(8, 18, 12, 0.4)",
+        backdropFilter: "blur(12px)",
       }}
     >
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          color: "#fff",
-          fontSize: "13px",
+          alignItems: "center",
+          color: "#f4f1ec", // Ivory
+          marginBottom: "12px",
         }}
       >
-        <span>
-          ✦ {cartCount} item{cartCount !== 1 ? "s" : ""} in your cart
-        </span>
+        <div
+          style={{
+            fontFamily: "'Jost', system-ui, sans-serif",
+            fontSize: "15px",
+            fontWeight: 400,
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <span>✦</span>
+          {cartCount} item{cartCount !== 1 ? "s" : ""} in your cart
+        </div>
+
+        <div
+          style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: "15px",
+            color: "#d8b08b", // Soft Gold
+            fontWeight: 500,
+          }}
+        >
+          ANJIS JEWEL
+        </div>
       </div>
 
-      <div style={{ display: "flex", gap: "8px" }}>
+      <div style={{ display: "flex", gap: "12px" }}>
+        {/* Secondary Button - Continue Shopping */}
         <button
           onClick={scrollToProducts}
           style={{
             flex: 1,
-            height: "42px",
+            height: "52px",
             background: "transparent",
-            color: "rgba(255,255,255,0.7)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            fontSize: "10px",
-            letterSpacing: "0.15em",
+            color: "#d8b08b",
+            border: "1px solid rgba(216, 176, 139, 0.5)",
+            borderRadius: "8px",
+            fontFamily: "'Jost', system-ui, sans-serif",
+            fontSize: "14px",
+            fontWeight: 500,
+            letterSpacing: "1px",
             textTransform: "uppercase",
             cursor: "pointer",
+            transition: "all 0.3s ease",
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = "rgba(216, 176, 139, 0.08)";
+            e.currentTarget.style.borderColor = "#d8b08b";
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.borderColor = "rgba(216, 176, 139, 0.5)";
           }}
         >
-          Continue
+          Continue Shopping
         </button>
 
+        {/* Primary Button - View Cart */}
         <button
           onClick={() => navigate("/cart")}
           style={{
-            flex: 1.5,
-            height: "42px",
-            background: "#c9907a",
-            color: "#fff",
+            flex: 1.35,
+            height: "52px",
+            background: "#c9a07c", // Luxury Gold
+            color: "#08120c", // Deep Emerald
             border: "none",
-            fontSize: "10px",
-            letterSpacing: "0.2em",
+            borderRadius: "8px",
+            fontFamily: "'Jost', system-ui, sans-serif",
+            fontSize: "15px",
+            fontWeight: 600,
+            letterSpacing: "1.5px",
             textTransform: "uppercase",
             cursor: "pointer",
+            boxShadow: "0 6px 20px rgba(201, 160, 124, 0.35)",
+            transition: "all 0.3s ease",
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = "#d8b08b";
+            e.currentTarget.style.transform = "translateY(-2px)";
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = "#c9a07c";
+            e.currentTarget.style.transform = "translateY(0)";
           }}
         >
           View Cart →

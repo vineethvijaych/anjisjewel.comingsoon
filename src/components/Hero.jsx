@@ -1,142 +1,186 @@
-import logo from "../assets/ChatGPT Image May 17, 2026, 07_35_46 PM (1).png";
+import heroImage from "../assets/hero.png"; // CHANGE TO YOUR ACTUAL FILE NAME
 
 export default function Hero() {
   return (
     <section
-      className="hero"
       style={{
-        minHeight: "135vh",
+        minHeight: "100vh",
         position: "relative",
-
-        /* prevent clipping */
-        overflow: "visible",
-
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        
+        alignItems: "center",
+        overflow: "hidden",
 
-        paddingBottom: "120px",
+        backgroundImage: `
+          linear-gradient(
+            90deg,
+            rgba(4,10,8,.96) 0%,
+            rgba(4,10,8,.90) 25%,
+            rgba(4,10,8,.72) 45%,
+            rgba(4,10,8,.28) 65%,
+            rgba(4,10,8,.05) 100%
+          ),
+          url(${heroImage})
+        `,
+
+        backgroundSize: "cover",
+        backgroundPosition: "72% center",
+        backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="hero-bg" />
-      <div className="hero-grid" />
-      <div className="hero-orb hero-orb-1" />
-      <div className="hero-orb hero-orb-2" />
+      {/* Luxury glow */}
+      <div
+        style={{
+          position: "absolute",
+          left: "-250px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: "800px",
+          height: "800px",
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(201,160,124,.10) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
 
       <div
-        className="hero-content"
         style={{
           width: "100%",
-          maxWidth: "1400px",
-
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-
+          maxWidth: "1500px",
           margin: "0 auto",
 
-          paddingTop: "200px",
-          paddingBottom: "80px",
-          paddingLeft: "20px",
-          paddingRight: "20px",
+          paddingLeft: "8vw",
+paddingRight: "6vw",
 
           position: "relative",
           zIndex: 2,
         }}
       >
-        {/* LOGO */}
         <div
           style={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            
+           maxWidth: "560px",
           }}
         >
-          <img
-            src={logo}
-            alt="Anjisjewel"
+          <p
             style={{
-              width: "min(500px, 90vw)",
-              maxWidth: "100%",
-              height: "auto",
-              display: "block",
-              objectFit: "contain",
-              paddingBottom: "80px"
-              
+              color: "#C9A07C",
+              fontSize: "12px",
+              letterSpacing: "5px",
+              textTransform: "uppercase",
+              fontFamily: "Jost, sans-serif",
+              marginBottom: "24px",
             }}
-          />
-        </div>
+          >
+            Fine Jewellery House
+          </p>
 
-        {/* LABEL */}
-        <p
-          className="hero-label"
-          style={{
-            marginTop: "0",
-            marginBottom: "25px",
-          }}
-        >
-          Exclusive Collection
-        </p>
+          <h1
+            style={{
+              margin: 0,
 
-        {/* TITLE */}
-        <h1
-          style={{
-            margin: "0",
-            lineHeight: "0.95",
-            fontSize: "clamp(3rem, 7vw, 6.5rem)",
-            maxWidth: "900px",
-          }}
-        >
-          Where <em>Elegance</em>
-          <br />
-          Meets Artistry
-        </h1>
+              color: "#F4F1EC",
 
-        {/* SUBTEXT */}
-        <p
-          className="hero-sub"
-          style={{
-            marginTop: "25px",
-            marginBottom: "35px",
-            maxWidth: "700px",
-          }}
-        >
-          Timeless luxury · Master craftsmanship · Ethically sourced
-        </p>
+              fontFamily: "Cormorant Garamond, serif",
+              fontWeight: "500",
 
-        {/* BUTTON */}
-        <div
-          className="hero-cta"
-          style={{
-            
-            
-        
-          }}
-        >
-          <a href="#products" className="btn-primary">
-            <span>Explore Collection</span>
+fontSize: "clamp(3.8rem, 5.5vw, 6rem)",
+              lineHeight: "0.92",
+
+              marginBottom: "28px",
+            }}
+          >
+            Crafted To Be
+            <br />
+            Treasured Forever
+          </h1>
+
+          <p
+            style={{
+              color: "#D7D0C6",
+
+              fontSize: "18px",
+              lineHeight: "1.9",
+
+              maxWidth: "520px",
+
+              fontFamily: "Jost, sans-serif",
+
+              marginBottom: "46px",
+            }}
+          >
+            Discover handcrafted jewellery designed with timeless elegance,
+            exceptional artistry, and uncompromising attention to detail.
+          </p>
+
+          <a
+            href="#products"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+
+              padding: "18px 52px",
+
+              border: "1px solid #C9A07C",
+
+              color: "#F4F1EC",
+
+              background: "rgba(201,160,124,.04)",
+
+              textDecoration: "none",
+
+              textTransform: "uppercase",
+              letterSpacing: "3px",
+
+              fontSize: "12px",
+              fontFamily: "Jost, sans-serif",
+
+              transition: ".3s ease",
+            }}
+          >
+            Shop Collection
           </a>
         </div>
       </div>
 
-      {/* SCROLL */}
-      <div
-        className="hero-scroll"
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 3,
-        }}
-      >
-        <span>Scroll</span>
-        <div className="hero-scroll-line" />
-      </div>
+      <style>{`
+        @media (max-width: 992px) {
+
+          section {
+            background-position: 78% center !important;
+          }
+
+          h1 {
+            font-size: 4rem !important;
+          }
+
+        }
+
+        @media (max-width: 768px) {
+
+          section {
+            background-position: 72% center !important;
+          }
+
+          h1 {
+            font-size: 3.5rem !important;
+            line-height: 0.95 !important;
+          }
+
+        }
+
+        @media (max-width: 480px) {
+
+          section {
+            background-position: 68% center !important;
+          }
+
+          h1 {
+            font-size: 3rem !important;
+          }
+
+        }
+      `}</style>
     </section>
   );
 }
