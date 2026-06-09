@@ -30,7 +30,7 @@ export default function Register() {
       <div className="auth-visual">
         <div className="auth-visual-bg" />
         <div className="auth-visual-content">
-          <div className="auth-visual-logo">Anjis<span>Jewel</span></div>
+          <div className="auth-visual-logo">AnjisJewel<span></span></div>
           <p className="auth-visual-tagline">Where elegance meets artistry</p>
           <div className="auth-visual-diamond" />
           <p style={{ fontSize: 12, letterSpacing: "0.1em", color: "var(--ash)", lineHeight: 1.8 }}>

@@ -76,7 +76,7 @@ export default function Footer() {
               e.currentTarget.style.transform = "translateY(0)";
             }}
           >
-            <span style={{ color: "#ffffff" }}>Anjis</span>
+            <span style={{ color: "#ffffff" }}>AnjisJewel</span>
             <span
               style={{
                 color: "#c9a07c",
@@ -85,7 +85,7 @@ export default function Footer() {
                 paddingBottom: "2px",
               }}
             >
-              Jewel
+             
             </span>
           </div>
         </div>

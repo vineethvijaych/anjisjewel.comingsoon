@@ -59,7 +59,7 @@ export default function Home() {
             margin: 0,
             letterSpacing: "-0.02em",
           }}>
-            Anjis<span style={{ color: "#c9a07c", fontStyle: "italic" }}>Jewel</span>
+            AnjisJewel<span style={{ color: "#c9a07c", fontStyle: "italic" }}></span>
           </h1>
           
           {/* Gold Divider */}

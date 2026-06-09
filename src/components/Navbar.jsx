@@ -339,7 +339,7 @@ export default function Navbar() {
           </nav>
 
           <Link to="/" className="logo" style={{ padding: "20px 0 0 0" }} onClick={handleNav}>
-            ANJIS JEWEL
+            ANJISJEWEL
           </Link>
 
           <div className="nav-right">

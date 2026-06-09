@@ -203,6 +203,8 @@ export default function Admin() {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState([]);
+  const [pendingOrders, setPendingOrders] = useState([]);
+const [pendingSearch, setPendingSearch] = useState("");
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [loading, setLoading] = useState(true);
@@ -211,6 +213,7 @@ export default function Admin() {
   const [filter, setFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [orderSearch, setOrderSearch] = useState("");
+  
   const [orderSortBy, setOrderSortBy] = useState("date-desc");
   const [catFilter, setCatFilter] = useState("All");
   const [productSortBy, setProductSortBy] = useState("newest");
@@ -257,6 +260,16 @@ export default function Admin() {
       items: typeof o.items === "string" ? JSON.parse(o.items) : o.items || [],
     })));
   }, []);
+  const loadPendingOrders = useCallback(async () => {
+  const { data, error } = await supabase
+    .from("pending_orders")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (!error) {
+    setPendingOrders(data || []);
+  }
+}, []);
 
   const loadProducts = useCallback(async () => {
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
@@ -293,10 +306,11 @@ export default function Admin() {
         }
 
         await Promise.all([
-          loadOrders(),
-          loadProducts(),
-          loadCategories(),
-        ]);
+  loadOrders(),
+  loadPendingOrders(),
+  loadProducts(),
+  loadCategories(),
+]);
 
         if (mounted) {
           setLoading(false);
@@ -320,7 +334,13 @@ export default function Admin() {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate, loadOrders, loadProducts, loadCategories]);
+ }, [
+  navigate,
+  loadOrders,
+  loadPendingOrders,
+  loadProducts,
+  loadCategories,
+]);
 
   const exportOrdersToExcel = () => {
     const filtered = filter === "all" ? orders : orders.filter(o => o.status === filter);
@@ -395,6 +415,27 @@ export default function Admin() {
     }
     setDeleting(null);
   };
+
+  const deletePendingOrder = async (id) => {
+  if (!window.confirm("Delete this pending order?")) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("pending_orders")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    alert(error.message);
+    return;
+  }
+
+  await loadPendingOrders();
+
+  showToast("Pending order deleted", "success");
+};
 
   const quickRestock = async (productId, currentStock, amount) => {
     const newStock = Number(currentStock) + amount;
@@ -602,6 +643,7 @@ export default function Admin() {
         }} />
         <p style={{ fontSize: "16px", fontWeight: "600", letterSpacing: "0.5px" }}>Loading Admin Panel...</p>
         <style>{`
+        
           @keyframes spin {
             to { transform: rotate(360deg); }
           }
@@ -2126,6 +2168,35 @@ export default function Admin() {
             padding: 16px 20px;
           }
         }
+          .btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.pending-orders-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.pending-orders-card .admin-table {
+  width: 100%;
+}
+
+.pending-orders-card .admin-table tr:hover {
+  background: var(--table-header);
+}
       `}</style>
 
       {/* Toast Notification overlay */}
@@ -2171,6 +2242,29 @@ export default function Admin() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
             Orders
           </button>
+          <button
+  onClick={() => {
+    setTab("pending-orders");
+    setSidebarOpen(false);
+  }}
+  className={`sidebar-btn ${tab === "pending-orders" ? "active" : ""}`}
+>
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 11l3 3L22 4" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+  </svg>
+
+  Pending Orders
+</button>
           
           <button 
             onClick={() => { setTab("products"); setSidebarOpen(false); }} 
@@ -2347,6 +2441,177 @@ export default function Admin() {
             </div>
           </div>
 
+          {/* ==================== PENDING ORDERS TAB ==================== */}
+{tab === "pending-orders" && (
+  <div className="content-card">
+    <div className="card-header">
+      <h3
+        style={{
+          margin: 0,
+          fontFamily: "'Outfit', sans-serif",
+          fontSize: "18px",
+          fontWeight: "700",
+        }}
+      >
+        Pending Orders Recovery
+      </h3>
+    </div>
+
+    <div style={{ padding: "24px" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "12px",
+          marginBottom: "20px",
+        }}
+      >
+        <input
+          type="text"
+          placeholder="Search Razorpay Order ID, Name, Phone..."
+          value={pendingSearch}
+          onChange={(e) => setPendingSearch(e.target.value)}
+          className="search-input"
+          style={{ width: "100%" }}
+        />
+      </div>
+
+      <div style={{ overflowX: "auto" }}>
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Razorpay Order ID</th>
+              <th>Customer Details</th>
+              <th>Phone</th>
+              <th>Products</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+         <tbody>
+  {pendingOrders
+    .filter((o) => {
+      const q = pendingSearch.toLowerCase();
+
+      return (
+        !q ||
+        o.payment_reference?.toLowerCase().includes(q) ||
+        o.shipping_data?.name?.toLowerCase().includes(q) ||
+        o.shipping_data?.phone?.toLowerCase().includes(q)
+      );
+    })
+    .map((order) => (
+      <tr key={order.id}>
+        <td data-label="Date">
+          {new Date(order.created_at).toLocaleString()}
+        </td>
+
+        <td data-label="Razorpay ID">
+          <code>{order.payment_reference}</code>
+        </td>
+
+        <td data-label="Customer">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+            }}
+          >
+            <strong>
+              {order.shipping_data?.full_name || "N/A"}
+            </strong>
+
+            <span>
+              {order.shipping_data?.phone || "N/A"}
+            </span>
+
+            <small
+              style={{
+                color: "var(--text-muted)",
+              }}
+            >
+              {order.shipping_data?.city || ""}
+            </small>
+          </div>
+        </td>
+
+        <td data-label="Phone">
+          {order.shipping_data?.phone || "-"}
+        </td>
+
+        <td data-label="Products">
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: "4px",
+      minWidth: "220px",
+    }}
+  >
+    {Array.isArray(order.cart_data)
+      ? order.cart_data.map((item, idx) => (
+          <div key={idx}>
+            <strong>
+              {item.products?.name || "Unknown Product"}
+            </strong>
+
+            <div
+              style={{
+                fontSize: "12px",
+                color: "var(--text-muted)",
+              }}
+            >
+              Qty: {item.quantity}
+            </div>
+          </div>
+        ))
+      : "No Products"}
+  </div>
+</td>
+
+        <td data-label="Amount">
+          <strong>₹{order.amount}</strong>
+        </td>
+
+        <td data-label="Actions">
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              flexWrap: "wrap",
+            }}
+          >
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setSelectedOrder(order);
+                setShowOrderModal(true);
+              }}
+            >
+              View
+            </button>
+
+            <button
+              className="btn-danger"
+              onClick={() =>
+                deletePendingOrder(order.id)
+              }
+            >
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))}
+</tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+)}
+
           {/* ==================== ORDERS TAB ==================== */}
           {tab === "orders" && (
             <div className="content-card">
@@ -2420,7 +2685,9 @@ export default function Admin() {
                 </div>
 
                 <div style={{ overflowX: "auto" }}>
-                  <table className="admin-table">
+                  
+  <table className="admin-table">
+
                     <thead>
                       <tr>
                         <th>Order ID</th>
@@ -2431,6 +2698,7 @@ export default function Admin() {
                         <th style={{ textAlign: "center" }}>Actions</th>
                       </tr>
                     </thead>
+                    
                     <tbody>
                       {sortedOrders.length === 0 ? (
                         <tr>
@@ -2776,11 +3044,19 @@ export default function Admin() {
                 <div className="modal-info-grid">
                   <div>
                     <div className="info-item-label">Customer Name</div>
-                    <div className="info-item-value">{selectedOrder.shipping_name || "N/A"}</div>
+                    <div className="info-item-value">{
+  selectedOrder.shipping_name ||
+  selectedOrder.shipping_data?.full_name ||
+  "N/A"
+}</div>
                   </div>
                   <div>
                     <div className="info-item-label">Phone Number</div>
-                    <div className="info-item-value">{selectedOrder.shipping_phone || "N/A"}</div>
+                    <div className="info-item-value">{
+  selectedOrder.shipping_phone ||
+  selectedOrder.shipping_data?.phone ||
+  "N/A"
+}</div>
                   </div>
                   <div>
                     <div className="info-item-label">Order Date & Time</div>
@@ -2800,13 +3076,24 @@ export default function Admin() {
                 <div className="modal-address-block">
                   <div className="info-item-label">Shipping Address</div>
                   <div className="address-box">
-                    {[
-                      selectedOrder.shipping_address,
-                      selectedOrder.shipping_city,
-                      selectedOrder.shipping_state,
-                      selectedOrder.shipping_pincode,
-                      selectedOrder.shipping_country,
-                    ]
+                    {selectedOrder.shipping_address
+  ? [
+      selectedOrder.shipping_address,
+      selectedOrder.shipping_city,
+      selectedOrder.shipping_state,
+      selectedOrder.shipping_pincode,
+      selectedOrder.shipping_country,
+    ]
+      .filter(Boolean)
+      .join(", ")
+  : [
+      selectedOrder.shipping_data?.line1,
+      selectedOrder.shipping_data?.line2,
+      selectedOrder.shipping_data?.city,
+      selectedOrder.shipping_data?.state,
+      selectedOrder.shipping_data?.pincode,
+    ]
+      
                       .filter(Boolean)
                       .join(", ") || "Address not available"}
                   </div>
@@ -2814,27 +3101,59 @@ export default function Admin() {
               </div>
 
               {/* ORDER ITEMS */}
-              <div>
-                <h3 style={{ margin: "0 0 16px 0", fontSize: "15px", fontWeight: "700", color: "var(--text-main)", fontFamily: "'Outfit', sans-serif" }}>Ordered Products</h3>
-                <div className="ordered-items-list">
-                  {selectedOrder.items?.map((item, index) => (
-                    <div className="ordered-item" key={index}>
-                      <div>
-                        <div className="ordered-item-name">{item.name}</div>
-                        <div className="ordered-item-qty">Qty: {item.quantity} &times; ₹{Number(item.price).toLocaleString("en-IN")}</div>
-                      </div>
-                      <div className="ordered-item-total">₹{Number(item.price * item.quantity).toLocaleString("en-IN")}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+
+            
+             
+
+             <div>
+  <h3
+    style={{
+      margin: "0 0 16px 0",
+      fontSize: "15px",
+      fontWeight: "700",
+      color: "var(--text-main)",
+      fontFamily: "'Outfit', sans-serif",
+    }}
+  >
+    Ordered Products
+  </h3>
+
+  <div className="ordered-items-list">
+    {(selectedOrder.items || selectedOrder.cart_data)?.map(
+      (item, index) => (
+        <div className="ordered-item" key={index}>
+          <div>
+            <div className="ordered-item-name">
+              {item.products?.name || "Unknown Product"}
+            </div>
+
+            <div className="ordered-item-qty">
+              Qty: {item.quantity} × ₹
+              {Number(
+                item.products?.price || 0
+              ).toLocaleString("en-IN")}
+            </div>
+          </div>
+
+          <div className="ordered-item-total">
+            ₹
+            {Number(
+              (item.products?.price || 0) *
+                (item.quantity || 0)
+            ).toLocaleString("en-IN")}
+          </div>
+        </div>
+      )
+    )}
+  </div>
+</div>
             </div>
 
             {/* FOOTER */}
             <div className="modal-footer">
               <div>
                 <div className="info-item-label">Total Amount</div>
-                <div className="modal-total-amount">₹{Number(selectedOrder.total).toLocaleString("en-IN")}</div>
+                <div className="modal-total-amount">₹{Number(selectedOrder.total || selectedOrder.amount).toLocaleString("en-IN")}</div>
               </div>
               
               <div style={{ display: "flex", gap: "10px" }}>

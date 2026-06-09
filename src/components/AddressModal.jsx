@@ -641,7 +641,7 @@ export default function AddressModal({
             fontFamily: "'Jost', sans-serif",
           }}
         >
-          All deliveries are handled with care by ANJIS JEWEL
+          All deliveries are handled with care by ANJISJEWEL
         </p>
       </div>
     </div>

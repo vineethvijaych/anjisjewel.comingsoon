@@ -6,7 +6,7 @@ export default function MaintenanceOverlay() {
       <div className="maintenance-card">
 
         <div className="logo">
-          ANJIS JEWEL
+          ANJISJEWEL
         </div>
 
         <h1>Under <br /> Maintenance</h1>

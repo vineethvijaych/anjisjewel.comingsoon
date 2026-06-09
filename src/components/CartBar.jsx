@@ -60,7 +60,7 @@ export default function CartBar() {
             fontWeight: 500,
           }}
         >
-          ANJIS JEWEL
+          ANJISJEWEL
         </div>
       </div>
 

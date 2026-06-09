@@ -166,9 +166,9 @@ export default function AdminLogin() {
               letterSpacing: "-0.01em",
             }}
           >
-            Anjis
+            AnjisJewel
             <span style={{ color: "#c9a07c", fontStyle: "italic" }}>
-              Jewel
+              
             </span>
           </p>
 

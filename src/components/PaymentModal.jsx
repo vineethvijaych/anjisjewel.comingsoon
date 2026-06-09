@@ -65,8 +65,14 @@ export default function PaymentModal({
   const { user, fetchCartCount, addToast } = useCart();
   const navigate = useNavigate();
 
-  const saveOrder = async ({ orderId, razorpayOrderId, razorpayPaymentId }) => {
-    const { error } = await supabase.from("orders").insert({
+ const saveOrder = async ({
+  orderId,
+  razorpayOrderId,
+  razorpayPaymentId,
+}) => {
+  console.log("Saving order...", orderId);
+
+  const { error } = await supabase.from("orders").insert({
       user_id: user.id,
       order_id: orderId,
       razorpay_order_id: razorpayOrderId,
@@ -91,7 +97,10 @@ export default function PaymentModal({
         : "",
     });
 
-    if (error) throw new Error(error.message);
+    if (error) {
+  console.error("ORDER SAVE FAILED:", error);
+  throw new Error(error.message);
+}
 
     for (const item of cart) {
       const { data: prod } = await supabase.from("products").select("stock").eq("id", item.product_id).single();
@@ -115,12 +124,27 @@ export default function PaymentModal({
 
       setStep("Creating order...");
       const orderId = `AJ-${Date.now().toString(36).toUpperCase()}`;
-      const { order_id: razorpayOrderId, amount } = await callEdge("razorpay-create-order", {
-        amount: total,
-        receipt: orderId,
-      });
+     const { order_id: razorpayOrderId, amount } =
+  await callEdge("razorpay-create-order", {
+    amount: total,
+    receipt: orderId,
+  });
+console.log("SHIPPING INFO", shippingInfo);
+console.log("NAME", shippingInfo.name);
+console.log("CART", cart);
+await supabase
+  .from("pending_orders")
+  
+  .insert({
+    user_id: user.id,
+    payment_reference: razorpayOrderId,
+    shipping_data: shippingInfo,
+    cart_data: cart,
+    amount: total,
+    status: "created",
+  });
 
-      setLoading(false);
+setLoading(false);
 
       await new Promise((resolve, reject) => {
         const rzp = new window.Razorpay({
